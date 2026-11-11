@@ -88,6 +88,7 @@ function Row({ e, last, onChange }: { e: Enclosure; last?: Cleaning; onChange: (
 export default function Enclosures() {
   const qc = useQueryClient()
   const [d, setD] = useState<Draft>(blank)
+  const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { data, isLoading } = useQuery({
     queryKey: ['enclosures'],
@@ -112,23 +113,31 @@ export default function Enclosures() {
     setError(null)
     const { error } = await supabase!.from('enclosures').insert(clean(d))
     if (error) return setError(error.message)
-    setD(blank); refresh()
+    setD(blank); setAdding(false); refresh()
   }
 
   return (
     <>
-      <h1>Enclosures</h1>
+      <div className="row between">
+        <h1>Enclosures</h1>
+        {!adding && <button onClick={() => setAdding(true)}>Add enclosure</button>}
+      </div>
+      {adding && (
+        <form onSubmit={add} className="stack card">
+          <h2>Add enclosure</h2>
+          <Fields d={d} set={setD} />
+          {error && <p className="error">{error}</p>}
+          <div className="row">
+            <button>Add</button>
+            <button type="button" className="secondary" onClick={() => { setAdding(false); setError(null) }}>Cancel</button>
+          </div>
+        </form>
+      )}
       {isLoading && <p>Loading…</p>}
       <ul className="cards">
         {data?.map((e) => <Row key={e.id} e={e} last={cleanings.data?.find((c) => c.enclosure_id === e.id)} onChange={refresh} />)}
       </ul>
       {data?.length === 0 && <p>No enclosures yet.</p>}
-      <h2>Add enclosure</h2>
-      <form onSubmit={add} className="stack">
-        <Fields d={d} set={setD} />
-        {error && <p className="error">{error}</p>}
-        <button>Add</button>
-      </form>
     </>
   )
 }

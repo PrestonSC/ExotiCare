@@ -34,7 +34,7 @@ export default function Animals() {
           const current = a.placements.find((p) => p.end_at === null)
           return (
             <li key={a.id}>
-              <Link to={`/animals/${a.id}`}>
+              <Link to={`/animals/${a.id}/care`}>
                 <strong>{a.name}</strong>
                 <span>{[a.morph, a.sex !== 'unknown' ? a.sex : null].filter(Boolean).join(' · ') || a.species}</span>
                 <span className="muted">

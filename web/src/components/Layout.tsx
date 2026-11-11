@@ -14,6 +14,7 @@ export default function Layout() {
       <nav className="nav no-print">
         <NavLink to="/dashboard">Today</NavLink>
         <NavLink to="/animals">Animals</NavLink>
+        <NavLink to="/trends">Trends</NavLink>
         <NavLink to="/enclosures">Enclosures</NavLink>
         <NavLink to="/labels">Labels</NavLink>
         <NavLink to="/settings" className="push">Settings</NavLink>

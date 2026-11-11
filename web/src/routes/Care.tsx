@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { daysAgo, fmtDate, label, localToIso, nowLocal } from '../lib/format'
-import LineChart from '../components/LineChart'
+import TimeChart, { type Marker } from '../components/TimeChart'
 import PhotosTab from '../components/PhotosTab'
 import type { Animal, Feeding, HealthEvent, Shed, Weight } from '../lib/types'
 
@@ -85,7 +85,10 @@ function WeightTab({ id }: { id: string }) {
         <label>Weight (grams)<input type="number" step="0.1" min="0.1" value={grams} onChange={(e) => setGrams(e.target.value)} required inputMode="decimal" /></label>
         <When v={when} set={setWhen} /><Notes v={notes} set={setNotes} />
       </LogForm>
-      {log.rows.length > 1 && <LineChart unit=" g" points={asc.map((w) => ({ at: w.measured_at, value: Number(w.grams) }))} />}
+      {log.rows.length > 1 && (
+        <TimeChart title="Weight over time" unit=" g"
+          series={[{ id: 'w', name: 'Weight', color: 'var(--accent)', points: asc.map((w) => ({ t: +new Date(w.measured_at), v: Number(w.grams) })) }]} />
+      )}
       <ul className="cards">
         {log.rows.map((w, i) => {
           const prev = log.rows[i + 1]
@@ -238,7 +241,39 @@ function HealthTab({ id }: { id: string }) {
   )
 }
 
-const tabs = ['weight', 'feeding', 'sheds', 'health', 'photos'] as const
+const DAY_MS = 86_400_000
+
+function ChartsTab({ id }: { id: string }) {
+  const weights = useLog<Weight>('weights', id)
+  const feedings = useLog<Feeding>('feedings', id)
+  const w = [...weights.rows].reverse()
+  const f = [...feedings.rows].reverse()
+  const markers: Marker[] = f.map((x) => ({
+    t: +new Date(x.fed_at), kind: x.outcome,
+    label: [x.prey_stage, x.prey_type === 'asf' ? 'ASF' : x.prey_type].filter(Boolean).join(' '),
+  }))
+  const meals = f.filter((x) => x.outcome === 'ate' && x.prey_weight_g)
+  const recent = feedings.rows.filter((x) => +new Date(x.fed_at) > Date.now() - 90 * DAY_MS)
+  const count = (o: Feeding['outcome']) => recent.filter((x) => x.outcome === o).length
+  return (
+    <>
+      <h2>Weight and feedings</h2>
+      {w.length === 0 ? <p className="muted">Log a weight to see this chart.</p> : (
+        <TimeChart title="Weight over time with feedings" unit=" g" markers={markers}
+          series={[{ id: 'w', name: 'Weight', color: 'var(--accent)', points: w.map((x) => ({ t: +new Date(x.measured_at), v: Number(x.grams) })) }]} />
+      )}
+      <h2>Meal size</h2>
+      {meals.length === 0 ? <p className="muted">Record the prey weight when you log a feeding to see how meal size changes.</p> : (
+        <TimeChart title="Prey weight over time" unit=" g"
+          series={[{ id: 'p', name: 'Prey weight', color: 'var(--accent)', points: meals.map((x) => ({ t: +new Date(x.fed_at), v: Number(x.prey_weight_g) })) }]} />
+      )}
+      <h2>Last 90 days</h2>
+      <p>{count('ate')} ate · {count('refused')} refused · {count('regurgitated')} regurgitated</p>
+    </>
+  )
+}
+
+const tabs = ['weight', 'feeding', 'charts', 'sheds', 'health', 'photos'] as const
 type Tab = (typeof tabs)[number]
 
 export default function Care() {
@@ -262,8 +297,11 @@ export default function Care() {
   })
   return (
     <>
-      <p><Link to={`/animals/${id}`}>← {animal.data?.name ?? 'Animal'}</Link></p>
-      <h1>{animal.data?.name} care log</h1>
+      <p className="row between">
+        <Link to="/animals">← All animals</Link>
+        <Link to={`/animals/${id}/edit`}>Edit details</Link>
+      </p>
+      <h1>{animal.data?.name}</h1>
       {last.data && <p className="muted">Last fed {daysAgo(last.data.fed_at)} ({last.data.outcome})</p>}
       <div className="tabs" role="tablist">
         {tabs.map((t) => (
@@ -274,6 +312,7 @@ export default function Care() {
       </div>
       {tab === 'weight' && <WeightTab id={id} />}
       {tab === 'feeding' && <FeedingTab id={id} />}
+      {tab === 'charts' && <ChartsTab id={id} />}
       {tab === 'sheds' && <ShedTab id={id} />}
       {tab === 'health' && <HealthTab id={id} />}
       {tab === 'photos' && animal.data && <PhotosTab animal={animal.data} />}
