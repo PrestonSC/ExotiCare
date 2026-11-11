@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import LineChart from '../components/LineChart'
 import { daysAgo, fmtDate, label } from '../lib/format'
+import { cleaningStatus, describeDue, feedingStatus } from '../lib/due'
 
 interface PublicAnimal {
   name: string
@@ -16,6 +17,9 @@ interface PublicAnimal {
   enclosure: { label: string; location: string | null } | null
   weights: { at: string; grams: number }[]
   last_fed: { at: string; prey_type: string; prey_stage: string | null; outcome: string } | null
+  last_ate_at: string | null
+  feed_interval_days: number
+  clean_interval_days: number | null
   last_shed: { at: string; complete: boolean } | null
   last_cleaned: { at: string; kind: string } | null
   health_open: { kind: string; description: string; since: string }[]
@@ -91,8 +95,16 @@ export default function AnimalPublic() {
                 ? `${daysAgo(data.last_fed.at)} · ${label(data.last_fed.outcome)} · ${[data.last_fed.prey_stage, data.last_fed.prey_type === 'asf' ? 'ASF' : data.last_fed.prey_type].filter(Boolean).join(' ')}`
                 : 'No record'}
             </dd>
+            <dt>Next feeding</dt>
+            <dd>{describeDue(feedingStatus({ intervalDays: data.feed_interval_days, lastAteAt: data.last_ate_at, lastFeed: data.last_fed ? { at: data.last_fed.at, outcome: data.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
             <dt>Last cleaned</dt>
             <dd>{data.last_cleaned ? `${daysAgo(data.last_cleaned.at)} · ${data.last_cleaned.kind}` : 'No record'}</dd>
+            {data.clean_interval_days && (
+              <>
+                <dt>Next cleaning</dt>
+                <dd>{describeDue(cleaningStatus(data.clean_interval_days, data.last_cleaned?.at), 'Cleaning').replace(/^Cleaning:? /, '')}</dd>
+              </>
+            )}
             <dt>Last shed</dt>
             <dd>{data.last_shed ? `${fmtDate(data.last_shed.at)}${data.last_shed.complete ? '' : ' (incomplete)'}` : 'No record'}</dd>
           </dl>

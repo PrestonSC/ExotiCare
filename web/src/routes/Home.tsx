@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom'
 import { supabaseConfigured } from '../lib/supabase'
 
 export default function Home() {
-  if (supabaseConfigured) return <Navigate to="/animals" replace />
+  if (supabaseConfigured) return <Navigate to="/dashboard" replace />
   return (
     <main className="page">
       <h1>Reptile Management</h1>

@@ -4,11 +4,12 @@ import { supabase } from '../lib/supabase'
 import { daysAgo, label } from '../lib/format'
 import type { Cleaning, Enclosure } from '../lib/types'
 
-type Draft = { label: string; location: string; type: string; notes: string }
-const blank: Draft = { label: '', location: '', type: '', notes: '' }
+type Draft = { label: string; location: string; type: string; notes: string; clean: string }
+const blank: Draft = { label: '', location: '', type: '', notes: '', clean: '14' }
 const clean = (d: Draft) => ({
   label: d.label.trim(), location: d.location.trim() || null,
   type: d.type.trim() || null, notes: d.notes.trim() || null,
+  clean_interval_days: Math.min(365, Math.max(1, Number(d.clean) || 14)),
 })
 
 function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
@@ -17,6 +18,7 @@ function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
       <label>Label<input value={d.label} onChange={(e) => set({ ...d, label: e.target.value })} required placeholder="Rack A-3" /></label>
       <label>Location<input value={d.location} onChange={(e) => set({ ...d, location: e.target.value })} placeholder="Reptile room" /></label>
       <label>Type<input value={d.type} onChange={(e) => set({ ...d, type: e.target.value })} placeholder="Tub, rack, vivarium…" /></label>
+      <label>Clean every (days)<input type="number" min="1" max="365" value={d.clean} onChange={(e) => set({ ...d, clean: e.target.value })} /></label>
       <label>Notes<textarea rows={2} value={d.notes} onChange={(e) => set({ ...d, notes: e.target.value })} /></label>
     </>
   )
@@ -24,7 +26,7 @@ function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
 
 function Row({ e, last, onChange }: { e: Enclosure; last?: Cleaning; onChange: () => void }) {
   const [editing, setEditing] = useState(false)
-  const [d, setD] = useState<Draft>({ label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '' })
+  const [d, setD] = useState<Draft>({ label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '', clean: String(e.clean_interval_days) })
   const [error, setError] = useState<string | null>(null)
 
   async function save(ev: FormEvent) {

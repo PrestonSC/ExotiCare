@@ -13,6 +13,7 @@ export default function Layout() {
   return (
     <>
       <nav className="nav no-print">
+        <NavLink to="/dashboard">Today</NavLink>
         <NavLink to="/animals">Animals</NavLink>
         <NavLink to="/enclosures">Enclosures</NavLink>
         <NavLink to="/labels">Labels</NavLink>
