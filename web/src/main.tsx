@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './lib/auth'
 import Layout, { RequireAuth } from './components/Layout'
@@ -11,6 +11,8 @@ import Animals from './routes/Animals'
 import AnimalEdit from './routes/AnimalEdit'
 import Enclosures from './routes/Enclosures'
 import Care from './routes/Care'
+import Settings from './routes/Settings'
+import Trends from './routes/Trends'
 import Labels from './routes/Labels'
 import AnimalPublic from './routes/AnimalPublic'
 import './styles.css'
@@ -31,10 +33,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/animals" element={<Animals />} />
-                <Route path="/animals/:id" element={<AnimalEdit />} />
+                <Route path="/animals/new" element={<AnimalEdit />} />
+                <Route path="/animals/:id/edit" element={<AnimalEdit />} />
+                <Route path="/animals/:id" element={<Navigate to="care" replace />} />
                 <Route path="/animals/:id/care" element={<Care />} />
                 <Route path="/enclosures" element={<Enclosures />} />
+                <Route path="/trends" element={<Trends />} />
                 <Route path="/labels" element={<Labels />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Route>
           </Routes>

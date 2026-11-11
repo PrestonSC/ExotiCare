@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { animalUrl } from '../lib/qr'
@@ -34,7 +34,7 @@ const toRow = (f: Form) => ({
 
 export default function AnimalEdit() {
   const { id } = useParams()
-  const isNew = id === 'new'
+  const isNew = !id || id === 'new'
   const nav = useNavigate()
   const qc = useQueryClient()
   const [form, setForm] = useState<Form>(empty)
@@ -82,7 +82,7 @@ export default function AnimalEdit() {
     setBusy(false)
     if (error) return setError(error.message)
     refresh()
-    nav(isNew ? `/animals/${data.id}` : '/animals')
+    nav(`/animals/${data.id}/care`)
   }
 
   async function remove() {
@@ -115,7 +115,6 @@ export default function AnimalEdit() {
   return (
     <>
       <h1>{isNew ? 'Add animal' : form.name || 'Animal'}</h1>
-      {!isNew && <p><Link className="btn" to={`/animals/${id}/care`}>Care log: weight, feeding, sheds, health</Link></p>}
       <form onSubmit={save} className="stack">
         <label>Name<input value={form.name} onChange={(e) => set('name', e.target.value)} required /></label>
         <label>Species<input value={form.species} onChange={(e) => set('species', e.target.value)} /></label>
@@ -143,7 +142,7 @@ export default function AnimalEdit() {
         {error && <p className="error">{error}</p>}
         <div className="row">
           <button disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
-          <button type="button" className="secondary" onClick={() => nav('/animals')}>Back</button>
+          <button type="button" className="secondary" onClick={() => nav(isNew ? '/animals' : `/animals/${id}/care`)}>Back</button>
           {!isNew && <button type="button" className="danger" onClick={remove}>Delete</button>}
         </div>
       </form>

@@ -124,9 +124,8 @@ All rows carry `owner_id uuid references auth.users` for RLS, and `created_at`.
 
 ## 8. Backup and ops
 
-- In-app **Export all** to JSON/CSV.
-- A weekly GitHub Action runs the export with a service key stored in *Actions secrets* and uploads it as a private artifact. It must never be committed, because the repo is public. Alternative: push it to a private bucket.
-- The same workflow pings the project so it never auto-pauses.
+- **Manual backup:** Settings → "Back up your data" downloads all data as JSON (or per-table CSV). No automated job.
+- Free-tier Supabase pauses after about a week of inactivity; regular use avoids it, and a paused project can be resumed from the dashboard.
 - Schema changes only through `supabase/migrations`.
 
 ## 9. Implementation phases

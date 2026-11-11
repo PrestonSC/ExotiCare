@@ -1,6 +1,5 @@
 import { Navigate, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
-import { supabase } from '../lib/supabase'
 
 export function RequireAuth() {
   const { session, loading } = useAuth()
@@ -15,11 +14,10 @@ export default function Layout() {
       <nav className="nav no-print">
         <NavLink to="/dashboard">Today</NavLink>
         <NavLink to="/animals">Animals</NavLink>
+        <NavLink to="/trends">Trends</NavLink>
         <NavLink to="/enclosures">Enclosures</NavLink>
         <NavLink to="/labels">Labels</NavLink>
-        <button className="link" onClick={() => supabase?.auth.signOut()}>
-          Sign out
-        </button>
+        <NavLink to="/settings" className="push">Settings</NavLink>
       </nav>
       <main className="page">
         <Outlet />
