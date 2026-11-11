@@ -14,19 +14,13 @@
 Run `migrations/0005_photos.sql`. It creates two Storage buckets (`animal-photos`, private, and
 `animal-public`, public profile copies) and their policies. No dashboard clicks needed.
 
-## Weekly backup
-`.github/workflows/backup.yml` runs every Monday and can be run manually (Actions tab).
-Add three repository **secrets** (Settings → Secrets and variables → Actions → *Secrets*):
+## Backups
+Manual: in the app, **Settings → Back up your data** downloads everything as one JSON file
+(or any table as CSV). Photo files are not included, only their records. There is no
+automatic backup, so download one now and then and keep it somewhere safe.
 
-| Secret | Value |
-|---|---|
-| `BACKUP_EMAIL` | your login email |
-| `BACKUP_PASSWORD` | your login password |
-| `BACKUP_PASSPHRASE` | a new passphrase used only to encrypt backups. **Store it in your password manager.** |
-
-The repo is public and artifacts of public repos are downloadable by any GitHub user, so the
-workflow encrypts the dump with GPG before uploading. To restore/read one:
-`gpg -d backup.json.gpg > backup.json`.
+Note: a free Supabase project pauses after about a week with no activity. Regular use keeps
+it awake. If it pauses, resume it from the Supabase dashboard; no data is lost.
 
 ## Access test
 From `web/`: `SUPABASE_URL=… SUPABASE_ANON_KEY=… [TEST_TOKEN=…] node scripts/anon-access.mjs`
