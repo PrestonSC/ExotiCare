@@ -3,24 +3,25 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { animalUrl } from '../lib/qr'
+import { feedingStatus, toDayString } from '../lib/due'
 import type { Animal, AnimalStatus, Enclosure, Placement, Sex } from '../lib/types'
 
 type Form = {
   name: string; species: string; morph: string; sex: Sex
   hatch_date: string; acquired_date: string; source: string
-  price: string; status: AnimalStatus; notes: string; feed_interval_days: string
+  price: string; status: AnimalStatus; notes: string; feed_interval_days: string; feed_anchor_date: string
 }
 
 const empty: Form = {
   name: '', species: 'Python regius', morph: '', sex: 'unknown',
-  hatch_date: '', acquired_date: '', source: '', price: '', status: 'active', notes: '', feed_interval_days: '7',
+  hatch_date: '', acquired_date: '', source: '', price: '', status: 'active', notes: '', feed_interval_days: '7', feed_anchor_date: toDayString(Date.now()),
 }
 
 const toForm = (a: Animal): Form => ({
   name: a.name, species: a.species, morph: a.morph ?? '', sex: a.sex,
   hatch_date: a.hatch_date ?? '', acquired_date: a.acquired_date ?? '', source: a.source ?? '',
   price: a.price?.toString() ?? '', status: a.status, notes: a.notes ?? '',
-  feed_interval_days: String(a.feed_interval_days),
+  feed_interval_days: String(a.feed_interval_days), feed_anchor_date: a.feed_anchor_date,
 })
 
 const toRow = (f: Form) => ({
@@ -30,6 +31,7 @@ const toRow = (f: Form) => ({
   source: f.source.trim() || null, price: f.price ? Number(f.price) : null,
   status: f.status, notes: f.notes.trim() || null,
   feed_interval_days: Math.min(90, Math.max(1, Number(f.feed_interval_days) || 7)),
+  ...(f.feed_anchor_date ? { feed_anchor_date: f.feed_anchor_date } : {}),
 })
 
 export default function AnimalEdit() {
@@ -51,6 +53,21 @@ export default function AnimalEdit() {
     },
   })
   useEffect(() => { if (animal.data) setForm(toForm(animal.data)) }, [animal.data])
+
+  // Next planned feeding, shown under the schedule fields.
+  const lastAte = useQuery({
+    queryKey: ['last-ate', id],
+    enabled: !isNew,
+    queryFn: async () => {
+      const { data } = await supabase!.from('feedings').select('fed_at').eq('animal_id', id!).eq('outcome', 'ate')
+        .order('fed_at', { ascending: false }).limit(1)
+      return (data?.[0]?.fed_at as string | undefined) ?? null
+    },
+  })
+  const planned = feedingStatus({
+    intervalDays: Math.max(1, Number(form.feed_interval_days) || 7),
+    anchor: form.feed_anchor_date || null, lastAteAt: lastAte.data,
+  })
 
   const enclosures = useQuery({
     queryKey: ['enclosures'],
@@ -137,6 +154,14 @@ export default function AnimalEdit() {
         <label>Feed every (days)
           <input type="number" min="1" max="90" value={form.feed_interval_days} onChange={(e) => set('feed_interval_days', e.target.value)} />
           <span className="muted">Typical ball pythons: juveniles 5–7, adults 10–14.</span>
+        </label>
+        <label>A planned feeding day
+          <input type="date" value={form.feed_anchor_date} onChange={(e) => set('feed_anchor_date', e.target.value)} />
+          <span className="muted">
+            Feedings are planned on this date and every {form.feed_interval_days || 'N'} days from it. If one is done late the
+            next stays on schedule (so it comes sooner).
+            {planned.nextDue !== undefined && ` Next planned: ${new Date(planned.nextDue).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}.`}
+          </span>
         </label>
         <label>Notes<textarea rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} /></label>
         {error && <p className="error">{error}</p>}

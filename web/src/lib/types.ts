@@ -15,6 +15,7 @@ export interface Animal {
   notes: string | null
   public_token: string
   feed_interval_days: number
+  feed_anchor_date: string
   public_photo_path: string | null
 }
 
@@ -26,6 +27,8 @@ export interface Enclosure {
   notes: string | null
   spot_clean_interval_days: number
   full_clean_interval_days: number
+  spot_anchor_date: string
+  full_anchor_date: string
 }
 
 export interface Placement {

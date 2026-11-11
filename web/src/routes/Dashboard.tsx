@@ -50,7 +50,7 @@ export default function Dashboard() {
     const feeds = data.feedings.filter((f) => f.animal_id === a.id)
     const lastAte = feeds.find((f) => f.outcome === 'ate')
     const fd = feedingStatus({
-      intervalDays: a.feed_interval_days, lastAteAt: lastAte?.fed_at,
+      intervalDays: a.feed_interval_days, anchor: a.feed_anchor_date, lastAteAt: lastAte?.fed_at,
       lastFeed: feeds[0] ? { at: feeds[0].fed_at, outcome: feeds[0].outcome } : null,
     }, now)
     const encId = data.placements.find((p) => p.animal_id === a.id)?.enclosure_id
@@ -74,7 +74,8 @@ export default function Dashboard() {
 
   const occupied = new Set(data.placements.filter((p) => data.animals.some((a) => a.id === p.animal_id)).map((p) => p.enclosure_id))
   for (const e of data.enclosures.filter((e) => occupied.has(e.id))) {
-    const st = cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), e.spot_clean_interval_days, e.full_clean_interval_days, now)
+    const st = cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), e.spot_clean_interval_days, e.full_clean_interval_days, now,
+      { spot: e.spot_anchor_date, full: e.full_anchor_date })
     const late = (d: Due) => d.state === 'due' || d.state === 'never'
     if (late(st.spot) || late(st.full)) {
       const animalId = data.placements.find((p) => p.enclosure_id === e.id)?.animal_id
@@ -133,8 +134,10 @@ export default function Dashboard() {
 
       <CleaningCalendar
         enclosures={data.enclosures.filter((e) => occupied.has(e.id))}
-        lastFull={Object.fromEntries(data.enclosures.map((e) => [e.id, cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), 1, 1).lastFullAt]))}
-        onChange={refresh}
+        fullPlans={Object.fromEntries(data.enclosures.map((e) => [e.id, {
+          intervalDays: e.full_clean_interval_days, anchor: e.full_anchor_date,
+          lastAt: cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), 1, 1).lastFullAt,
+        }]))}
       />
 
       <h2>All animals</h2>
