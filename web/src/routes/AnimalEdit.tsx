@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import { animalUrl } from '../lib/qr'
 import type { Animal, AnimalStatus, Enclosure, Placement, Sex } from '../lib/types'
 
 type Form = {
@@ -100,6 +101,13 @@ export default function AnimalEdit() {
     refresh()
   }
 
+  async function rotate() {
+    if (!confirm('Replace this animal\'s QR code? Any printed label for it will stop working.')) return
+    const { error } = await supabase!.rpc('rotate_animal_token', { p_animal: id })
+    if (error) return setError(error.message)
+    refresh()
+  }
+
   if (!isNew && animal.isLoading) return <p>Loading…</p>
 
   return (
@@ -132,6 +140,16 @@ export default function AnimalEdit() {
           {!isNew && <button type="button" className="danger" onClick={remove}>Delete</button>}
         </div>
       </form>
+
+      {!isNew && animal.data && (
+        <section className="stack">
+          <h2>QR code</h2>
+          <a href={animalUrl(animal.data.public_token)} target="_blank" rel="noreferrer">Open public page</a>
+          <div className="row">
+            <button type="button" className="secondary" onClick={rotate}>Rotate QR code</button>
+          </div>
+        </section>
+      )}
 
       {!isNew && (
         <section className="stack">
