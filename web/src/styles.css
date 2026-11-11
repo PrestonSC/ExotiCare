@@ -1,0 +1,23 @@
+:root { font-family: system-ui, sans-serif; color-scheme: light dark; --accent: #2f7d4f; }
+body { margin: 0; }
+.page { padding: 16px; max-width: 640px; margin: 0 auto; }
+.narrow { max-width: 360px; }
+.nav { display: flex; gap: 16px; padding: 12px 16px; border-bottom: 1px solid #8884; align-items: center; }
+.nav a { text-decoration: none; color: inherit; opacity: .7; }
+.nav a.active { opacity: 1; font-weight: 600; }
+.nav .link { margin-left: auto; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+input, select, textarea, button, .btn { font: inherit; padding: 8px 10px; border-radius: 6px; border: 1px solid #8886; }
+button, .btn { background: var(--accent); color: #fff; border: 0; cursor: pointer; text-decoration: none; }
+button.secondary { background: #8883; color: inherit; }
+button.danger { background: #b3261e; }
+button.link { background: none; color: inherit; padding: 0; opacity: .7; }
+button:disabled { opacity: .6; }
+.cards { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cards li { border: 1px solid #8884; border-radius: 8px; padding: 12px; }
+.cards li > a { display: flex; flex-direction: column; text-decoration: none; color: inherit; gap: 2px; }
+.muted { opacity: .65; font-size: .9rem; }
+.error { color: #b3261e; }

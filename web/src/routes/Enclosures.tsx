@@ -1,0 +1,107 @@
+import { useState, type FormEvent } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { supabase } from '../lib/supabase'
+import type { Enclosure } from '../lib/types'
+
+type Draft = { label: string; location: string; type: string; notes: string }
+const blank: Draft = { label: '', location: '', type: '', notes: '' }
+const clean = (d: Draft) => ({
+  label: d.label.trim(), location: d.location.trim() || null,
+  type: d.type.trim() || null, notes: d.notes.trim() || null,
+})
+
+function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
+  return (
+    <>
+      <label>Label<input value={d.label} onChange={(e) => set({ ...d, label: e.target.value })} required placeholder="Rack A-3" /></label>
+      <label>Location<input value={d.location} onChange={(e) => set({ ...d, location: e.target.value })} placeholder="Reptile room" /></label>
+      <label>Type<input value={d.type} onChange={(e) => set({ ...d, type: e.target.value })} placeholder="Tub, rack, vivarium…" /></label>
+      <label>Notes<textarea rows={2} value={d.notes} onChange={(e) => set({ ...d, notes: e.target.value })} /></label>
+    </>
+  )
+}
+
+function Row({ e, onChange }: { e: Enclosure; onChange: () => void }) {
+  const [editing, setEditing] = useState(false)
+  const [d, setD] = useState<Draft>({ label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '' })
+  const [error, setError] = useState<string | null>(null)
+
+  async function save(ev: FormEvent) {
+    ev.preventDefault()
+    const { error } = await supabase!.from('enclosures').update(clean(d)).eq('id', e.id)
+    if (error) return setError(error.message)
+    setEditing(false); onChange()
+  }
+  async function remove() {
+    if (!confirm(`Delete ${e.label}?`)) return
+    const { error } = await supabase!.from('enclosures').delete().eq('id', e.id)
+    if (error) return setError(error.message)
+    onChange()
+  }
+
+  if (!editing)
+    return (
+      <li>
+        <div className="row between">
+          <div>
+            <strong>{e.label}</strong>
+            <div className="muted">{[e.location, e.type].filter(Boolean).join(' · ')}</div>
+          </div>
+          <button className="secondary" onClick={() => setEditing(true)}>Edit</button>
+        </div>
+      </li>
+    )
+  return (
+    <li>
+      <form onSubmit={save} className="stack">
+        <Fields d={d} set={setD} />
+        {error && <p className="error">{error}</p>}
+        <div className="row">
+          <button>Save</button>
+          <button type="button" className="secondary" onClick={() => setEditing(false)}>Cancel</button>
+          <button type="button" className="danger" onClick={remove}>Delete</button>
+        </div>
+      </form>
+    </li>
+  )
+}
+
+export default function Enclosures() {
+  const qc = useQueryClient()
+  const [d, setD] = useState<Draft>(blank)
+  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading } = useQuery({
+    queryKey: ['enclosures'],
+    queryFn: async () => {
+      const { data, error } = await supabase!.from('enclosures').select('*').order('label')
+      if (error) throw error
+      return data as Enclosure[]
+    },
+  })
+  const refresh = () => qc.invalidateQueries()
+
+  async function add(ev: FormEvent) {
+    ev.preventDefault()
+    setError(null)
+    const { error } = await supabase!.from('enclosures').insert(clean(d))
+    if (error) return setError(error.message)
+    setD(blank); refresh()
+  }
+
+  return (
+    <>
+      <h1>Enclosures</h1>
+      {isLoading && <p>Loading…</p>}
+      <ul className="cards">
+        {data?.map((e) => <Row key={e.id} e={e} onChange={refresh} />)}
+      </ul>
+      {data?.length === 0 && <p>No enclosures yet.</p>}
+      <h2>Add enclosure</h2>
+      <form onSubmit={add} className="stack">
+        <Fields d={d} set={setD} />
+        {error && <p className="error">{error}</p>}
+        <button>Add</button>
+      </form>
+    </>
+  )
+}
