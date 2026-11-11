@@ -11,7 +11,7 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  if (session) return <Navigate to="/animals" replace />
+  if (session) return <Navigate to="/dashboard" replace />
 
   async function submit(e: FormEvent) {
     e.preventDefault()

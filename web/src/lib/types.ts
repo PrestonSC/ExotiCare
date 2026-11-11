@@ -14,6 +14,7 @@ export interface Animal {
   status: AnimalStatus
   notes: string | null
   public_token: string
+  feed_interval_days: number
 }
 
 export interface Enclosure {
@@ -22,6 +23,7 @@ export interface Enclosure {
   location: string | null
   type: string | null
   notes: string | null
+  clean_interval_days: number
 }
 
 export interface Placement {

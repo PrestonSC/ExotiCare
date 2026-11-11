@@ -8,18 +8,19 @@ import type { Animal, AnimalStatus, Enclosure, Placement, Sex } from '../lib/typ
 type Form = {
   name: string; species: string; morph: string; sex: Sex
   hatch_date: string; acquired_date: string; source: string
-  price: string; status: AnimalStatus; notes: string
+  price: string; status: AnimalStatus; notes: string; feed_interval_days: string
 }
 
 const empty: Form = {
   name: '', species: 'Python regius', morph: '', sex: 'unknown',
-  hatch_date: '', acquired_date: '', source: '', price: '', status: 'active', notes: '',
+  hatch_date: '', acquired_date: '', source: '', price: '', status: 'active', notes: '', feed_interval_days: '7',
 }
 
 const toForm = (a: Animal): Form => ({
   name: a.name, species: a.species, morph: a.morph ?? '', sex: a.sex,
   hatch_date: a.hatch_date ?? '', acquired_date: a.acquired_date ?? '', source: a.source ?? '',
   price: a.price?.toString() ?? '', status: a.status, notes: a.notes ?? '',
+  feed_interval_days: String(a.feed_interval_days),
 })
 
 const toRow = (f: Form) => ({
@@ -28,6 +29,7 @@ const toRow = (f: Form) => ({
   hatch_date: f.hatch_date || null, acquired_date: f.acquired_date || null,
   source: f.source.trim() || null, price: f.price ? Number(f.price) : null,
   status: f.status, notes: f.notes.trim() || null,
+  feed_interval_days: Math.min(90, Math.max(1, Number(f.feed_interval_days) || 7)),
 })
 
 export default function AnimalEdit() {
@@ -133,6 +135,10 @@ export default function AnimalEdit() {
         <label>Acquired<input type="date" value={form.acquired_date} onChange={(e) => set('acquired_date', e.target.value)} /></label>
         <label>Source<input value={form.source} onChange={(e) => set('source', e.target.value)} /></label>
         <label>Price paid<input type="number" step="0.01" min="0" value={form.price} onChange={(e) => set('price', e.target.value)} /></label>
+        <label>Feed every (days)
+          <input type="number" min="1" max="90" value={form.feed_interval_days} onChange={(e) => set('feed_interval_days', e.target.value)} />
+          <span className="muted">Typical ball pythons: juveniles 5–7, adults 10–14.</span>
+        </label>
         <label>Notes<textarea rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} /></label>
         {error && <p className="error">{error}</p>}
         <div className="row">
