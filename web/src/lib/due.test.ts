@@ -47,7 +47,7 @@ describe('weightDrop', () => {
   it('needs two weights', () => expect(weightDrop([{ at: ago(0), grams: 1000 }])).toBeNull())
 })
 
-import { cleanStatus, isFullKind, planStatus, projectDueDays, toDayString, parseDay } from './due'
+import { cleanStatus, completionSlot, isFullKind, planStatus, plannedDays, projectDueDays, toDayString, parseDay } from './due'
 
 describe('cleanStatus', () => {
   const spotDaily = 1, fullMonthly = 30
@@ -147,5 +147,20 @@ describe('projectDueDays', () => {
   it('puts an overdue day on today and keeps the grid after it', () => {
     const out = projectDueDays({ intervalDays: 7, anchor: day(-5) }, now, parseDay(day(20)))
     expect(fromToday(out)).toEqual([0, 9, 16])
+  })
+})
+
+describe('plannedDays / completionSlot', () => {
+  const day = (n: number) => toDayString(now + n * DAY)
+  it('lists planned days in a range, none before the anchor', () => {
+    const out = plannedDays({ intervalDays: 7, anchor: day(-10) }, now - 30 * DAY, now + 12 * DAY)
+    expect(out.map((p) => Math.round((p.ms - parseDay(day(0))) / DAY))).toEqual([-10, -3, 4, 11])
+    expect(out.map((p) => p.slot)).toEqual([0, 1, 2, 3])
+  })
+  it('maps a late completion to the planned day it was owed', () => {
+    // planned -10, -3, 4: done at -2 (a day late for -3) counts for slot 1
+    expect(completionSlot(day(-10), 7, now - 2 * DAY)).toBe(1)
+    // done at -8 (two days early... for the first slot is -10, so -8 is a late slot 0)
+    expect(completionSlot(day(-10), 7, now - 8 * DAY)).toBe(0)
   })
 })

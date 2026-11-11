@@ -102,6 +102,23 @@ export function projectDueDays(input: PlanInput, now: number, endMs: number): nu
   return out
 }
 
+/** The planned day numbers (slot) a completion counts for, on the grid starting at `anchor`. */
+export const completionSlot = (anchor: string, intervalDays: number, at: string | number) =>
+  slotOf(parseDay(anchor), Math.max(1, Math.round(intervalDays)), typeof at === 'number' ? at : new Date(at).getTime())
+
+/** Planned days on the grid within [fromMs, toMs), with their slot numbers. Days before the anchor are not planned. */
+export function plannedDays(input: { intervalDays: number; anchor: string }, fromMs: number, toMs: number): { ms: number; slot: number }[] {
+  const I = Math.max(1, Math.round(input.intervalDays))
+  const a = parseDay(input.anchor)
+  const out: { ms: number; slot: number }[] = []
+  for (let k = Math.max(0, Math.ceil(calendarDays(startOfDay(fromMs), a) / I)); out.length < 1000; k++) {
+    const ms = addDays(a, k * I)
+    if (ms >= toMs) break
+    out.push({ ms, slot: k })
+  }
+  return out
+}
+
 export function cleaningStatus(
   intervalDays: number, lastCleanedAt?: string | null, now = Date.now(), anchor?: string | null,
 ): Due {

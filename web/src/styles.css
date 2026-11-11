@@ -162,10 +162,13 @@ button.compact { min-width: 56px; }
 .day-detail .todo { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .day-detail p { margin: 0; }
 .cal-tools { margin: 4px 0; }
-.jump { flex-direction: row; align-items: center; gap: 8px; }
-.jump input { width: auto; }
 .calendar .cal-month { margin: 0; text-align: center; flex: 1; }
 .cal-tools { margin: 4px 0; }
-.jump { flex-direction: row; align-items: center; gap: 8px; }
-.jump input { width: auto; }
 .calendar .cal-month { margin: 0; text-align: center; flex: 1; }
+/* Feeding markers: diamonds (cleaning uses dots and squares) */
+.m-fed, .m-offered, .m-fdue { display: inline-block; width: 9px; height: 9px; box-sizing: border-box; transform: rotate(45deg); border-radius: 1px; margin: 0 1px; }
+.m-fed { background: var(--series-1); }
+.m-offered { border: 2px solid var(--series-1); background: linear-gradient(135deg, var(--series-1) 50%, transparent 50%); }
+.m-fdue { border: 2px dashed var(--series-1); }
+.legend .m-fed, .legend .m-offered, .legend .m-fdue { margin-right: 6px; }
+.cal-tools { margin: 4px 0; }
