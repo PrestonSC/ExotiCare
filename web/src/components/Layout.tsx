@@ -12,9 +12,10 @@ export function RequireAuth() {
 export default function Layout() {
   return (
     <>
-      <nav className="nav">
+      <nav className="nav no-print">
         <NavLink to="/animals">Animals</NavLink>
         <NavLink to="/enclosures">Enclosures</NavLink>
+        <NavLink to="/labels">Labels</NavLink>
         <button className="link" onClick={() => supabase?.auth.signOut()}>
           Sign out
         </button>
