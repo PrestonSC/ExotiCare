@@ -8,10 +8,14 @@ export interface Due {
   state: DueState
   /** state 'due': days overdue (0 = due today). state 'ok': days until due. state 'wait': days left to wait. */
   days: number
+  /** The planned date (local midnight, ms) this status is counting towards. */
+  nextDue?: number
 }
 
 export interface FeedInput {
   intervalDays: number
+  /** A date on the planned feeding grid ('YYYY-MM-DD'): planned feedings fall on this date +/- whole intervals. */
+  anchor?: string | null
   /** Most recent feeding where the animal ate. A refusal does not reset the schedule. */
   lastAteAt?: string | null
   /** Most recent feeding of any outcome. */
@@ -23,31 +27,85 @@ export function feedingStatus(i: FeedInput, now = Date.now()): Due {
     const until = new Date(i.lastFeed.at).getTime() + REGURG_WAIT_DAYS * DAY
     if (until > now) return { state: 'wait', days: Math.ceil((until - now) / DAY) }
   }
-  if (!i.lastAteAt) return { state: 'never', days: 0 }
-  return dueFrom(i.lastAteAt, i.intervalDays, now)
+  return planStatus({ intervalDays: i.intervalDays, anchor: i.anchor, lastAt: i.lastAteAt }, now)
 }
 
 const startOfDay = (ms: number) => { const d = new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() }
 /** Whole calendar days from b to a, in local time (so "cleaned this morning" is 0 days ago all day). */
 const calendarDays = (a: number, b: number) => Math.round((startOfDay(a) - startOfDay(b)) / DAY)
 
-/**
- * Cleaning is a chore tied to the calendar day, not a 24-hour timer: a daily spot clean done this
- * morning is finished until tomorrow, and one done yesterday is due again today.
- */
-export function cleaningStatus(intervalDays: number, lastCleanedAt?: string | null, now = Date.now()): Due {
-  if (!lastCleanedAt) return { state: 'never', days: 0 }
-  const since = calendarDays(now, new Date(lastCleanedAt).getTime())
-  return since >= intervalDays
-    ? { state: 'due', days: since - intervalDays }
-    : { state: 'ok', days: intervalDays - since }
+// ---- Fixed planned schedule ------------------------------------------------------------------
+// A task (feeding, spot clean, full clean) has planned days on a fixed grid: anchor + k * interval.
+// Doing a task late does NOT move the grid: it stays due (rolls over) until it is done, and the next
+// planned day is still the next grid day, so a feeding done a day late is followed by one 6 days
+// later on a 7-day schedule. Doing one early counts for the nearest planned day.
+
+/** 'YYYY-MM-DD' -> local midnight (ms). */
+export const parseDay = (s: string) => {
+  const [y, m, d] = s.slice(0, 10).split('-').map(Number)
+  return new Date(y, m - 1, d).getTime()
+}
+export const toDayString = (ms: number) => {
+  const d = new Date(ms)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+const addDays = (ms: number, n: number) => { const d = new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n).getTime() }
+
+export interface PlanInput {
+  intervalDays: number
+  /** A date on the planned grid. If absent, the grid starts at the last completion. */
+  anchor?: string | null
+  /** Most recent completion (ISO timestamp). */
+  lastAt?: string | null
 }
 
-function dueFrom(lastAt: string, intervalDays: number, now: number): Due {
-  const dueAt = new Date(lastAt).getTime() + intervalDays * DAY
-  return dueAt <= now
-    ? { state: 'due', days: Math.floor((now - dueAt) / DAY) }
-    : { state: 'ok', days: Math.floor((dueAt - now) / DAY) }
+/**
+ * Which planned slot a completion counts for. Slot k is planned for anchor + k*interval; a completion
+ * belongs to the slot whose window contains it. Windows are centred on the planned day (a little early
+ * counts, a late one still counts for the slot it was owed), so extra early completions do not also
+ * satisfy the next slot.
+ */
+const slotOf = (anchorDay: number, intervalDays: number, atMs: number) =>
+  Math.floor((calendarDays(atMs, anchorDay) + Math.floor((intervalDays - 1) / 2)) / intervalDays)
+
+export function planStatus(input: PlanInput, now = Date.now()): Due {
+  const today = startOfDay(now)
+  const I = Math.max(1, Math.round(input.intervalDays))
+  if (!input.lastAt) {
+    if (!input.anchor) return { state: 'never', days: 0 }
+    const a = parseDay(input.anchor)
+    const diff = calendarDays(today, a)
+    return diff >= 0 ? { state: 'never', days: diff, nextDue: a } : { state: 'ok', days: -diff, nextDue: a }
+  }
+  const last = new Date(input.lastAt).getTime()
+  const anchorDay = input.anchor ? parseDay(input.anchor) : startOfDay(last)
+  const next = Math.max(addDays(anchorDay, (slotOf(anchorDay, I, last) + 1) * I), anchorDay)
+  const diff = calendarDays(today, next)
+  return diff >= 0 ? { state: 'due', days: diff, nextDue: next } : { state: 'ok', days: -diff, nextDue: next }
+}
+
+/**
+ * Every planned day from today up to (not including) `endMs`, assuming each is done on the day.
+ * An overdue one shows on today. Used to draw upcoming due dates on the calendar.
+ */
+export function projectDueDays(input: PlanInput, now: number, endMs: number): number[] {
+  const today = startOfDay(now)
+  const I = Math.max(1, Math.round(input.intervalDays))
+  const st = planStatus(input, now)
+  const anchorDay = input.anchor ? parseDay(input.anchor) : input.lastAt ? startOfDay(new Date(input.lastAt).getTime()) : today
+  let due = st.nextDue === undefined ? today : Math.max(st.nextDue, today)
+  const out: number[] = []
+  for (let n = 0; n < 400 && due < endMs; n++) {
+    out.push(due)
+    due = addDays(anchorDay, (slotOf(anchorDay, I, due) + 1) * I)
+  }
+  return out
+}
+
+export function cleaningStatus(
+  intervalDays: number, lastCleanedAt?: string | null, now = Date.now(), anchor?: string | null,
+): Due {
+  return planStatus({ intervalDays, anchor, lastAt: lastCleanedAt }, now)
 }
 
 /** Consecutive refusals, newest first. `outcomes` must be sorted newest first. */
@@ -95,14 +153,15 @@ export interface CleanStatus {
 export function cleanStatus(
   cleanings: { cleaned_at: string; kind: string }[],
   spotIntervalDays: number, fullIntervalDays: number, now = Date.now(),
+  anchors: { spot?: string | null; full?: string | null } = {},
 ): CleanStatus {
   const latest = (rows: { cleaned_at: string }[]) =>
     rows.reduce<string | undefined>((a, r) => (!a || r.cleaned_at > a ? r.cleaned_at : a), undefined)
   const lastSpotAt = latest(cleanings)
   const lastFullAt = latest(cleanings.filter((c) => isFullKind(c.kind)))
   return {
-    spot: cleaningStatus(spotIntervalDays, lastSpotAt, now),
-    full: cleaningStatus(fullIntervalDays, lastFullAt, now),
+    spot: cleaningStatus(spotIntervalDays, lastSpotAt, now, anchors.spot),
+    full: cleaningStatus(fullIntervalDays, lastFullAt, now, anchors.full),
     lastSpotAt, lastFullAt,
   }
 }

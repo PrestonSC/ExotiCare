@@ -2,21 +2,23 @@ import { useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import CleanRow from '../components/CleanRow'
-import { cleanStatus } from '../lib/due'
+import { cleanStatus, toDayString } from '../lib/due'
 import { loadCleanings, type CleaningRow } from '../lib/cleanings'
 import type { Animal, Enclosure, Placement } from '../lib/types'
 
-type Draft = { label: string; location: string; type: string; notes: string; spot: string; full: string }
-const blank: Draft = { label: '', location: '', type: '', notes: '', spot: '1', full: '30' }
+type Draft = { label: string; location: string; type: string; notes: string; spot: string; full: string; fullDay: string }
+const blank = (): Draft => ({ label: '', location: '', type: '', notes: '', spot: '1', full: '30', fullDay: toDayString(Date.now()) })
 const days = (v: string, fallback: number) => Math.min(365, Math.max(1, Math.round(Number(v)) || fallback))
 const clean = (d: Draft) => ({
   label: d.label.trim(), location: d.location.trim() || null,
   type: d.type.trim() || null, notes: d.notes.trim() || null,
   spot_clean_interval_days: days(d.spot, 1), full_clean_interval_days: days(d.full, 30),
+  ...(d.fullDay ? { full_anchor_date: d.fullDay } : {}),
 })
 const toDraft = (e: Enclosure): Draft => ({
   label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '',
   spot: String(e.spot_clean_interval_days), full: String(e.full_clean_interval_days),
+  fullDay: e.full_anchor_date,
 })
 
 function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
@@ -33,6 +35,10 @@ function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
           <input type="number" min="1" max="365" inputMode="numeric" value={d.full} onChange={(e) => set({ ...d, full: e.target.value })} />
         </label>
       </div>
+      <label>A planned full clean day
+        <input type="date" value={d.fullDay} onChange={(e) => set({ ...d, fullDay: e.target.value })} />
+        <span className="muted small">Full cleans are planned on this date and every {d.full || 'N'} days from it. Doing one late does not move the next one.</span>
+      </label>
       <label>Notes<textarea rows={2} value={d.notes} onChange={(e) => set({ ...d, notes: e.target.value })} /></label>
     </>
   )
@@ -44,7 +50,8 @@ function EnclosureCard({ e, occupant, cleanings, onChange }: {
   const [editing, setEditing] = useState(false)
   const [d, setD] = useState<Draft>(toDraft(e))
   const [error, setError] = useState<string | null>(null)
-  const st = cleanStatus(cleanings, e.spot_clean_interval_days, e.full_clean_interval_days)
+  const st = cleanStatus(cleanings, e.spot_clean_interval_days, e.full_clean_interval_days, Date.now(),
+    { spot: e.spot_anchor_date, full: e.full_anchor_date })
 
   async function save(ev: FormEvent) {
     ev.preventDefault()
@@ -94,7 +101,7 @@ function EnclosureCard({ e, occupant, cleanings, onChange }: {
 
 export default function Enclosures() {
   const qc = useQueryClient()
-  const [d, setD] = useState<Draft>(blank)
+  const [d, setD] = useState<Draft>(blank())
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -124,7 +131,7 @@ export default function Enclosures() {
     setError(null)
     const { error } = await supabase!.from('enclosures').insert(clean(d))
     if (error) return setError(error.message)
-    setD(blank); setAdding(false); refresh()
+    setD(blank()); setAdding(false); refresh()
   }
 
   return (

@@ -20,6 +20,9 @@ interface PublicAnimal {
   last_fed: { at: string; prey_type: string; prey_stage: string | null; outcome: string } | null
   last_ate_at: string | null
   feed_interval_days: number
+  feed_anchor_date: string | null
+  spot_anchor_date: string | null
+  full_anchor_date: string | null
   spot_clean_interval_days: number | null
   full_clean_interval_days: number | null
   last_spot_clean: string | null
@@ -125,13 +128,13 @@ export default function AnimalPublic() {
                 : 'No record'}
             </dd>
             <dt>Next feeding</dt>
-            <dd>{describeDue(feedingStatus({ intervalDays: animal.feed_interval_days, lastAteAt: animal.last_ate_at, lastFeed: animal.last_fed ? { at: animal.last_fed.at, outcome: animal.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
+            <dd>{describeDue(feedingStatus({ intervalDays: animal.feed_interval_days, anchor: animal.feed_anchor_date, lastAteAt: animal.last_ate_at, lastFeed: animal.last_fed ? { at: animal.last_fed.at, outcome: animal.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
             {animal.spot_clean_interval_days && animal.full_clean_interval_days && (
               <>
                 <dt>Spot clean</dt>
-                <dd>{cleanLine(cleaningStatus(animal.spot_clean_interval_days, animal.last_spot_clean), animal.last_spot_clean)}</dd>
+                <dd>{cleanLine(cleaningStatus(animal.spot_clean_interval_days, animal.last_spot_clean, Date.now(), animal.spot_anchor_date), animal.last_spot_clean)}</dd>
                 <dt>Full clean</dt>
-                <dd>{cleanLine(cleaningStatus(animal.full_clean_interval_days, animal.last_full_clean), animal.last_full_clean)}</dd>
+                <dd>{cleanLine(cleaningStatus(animal.full_clean_interval_days, animal.last_full_clean, Date.now(), animal.full_anchor_date), animal.last_full_clean)}</dd>
               </>
             )}
             <dt>Last shed</dt>
