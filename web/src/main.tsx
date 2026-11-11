@@ -9,6 +9,7 @@ import Login from './routes/Login'
 import Animals from './routes/Animals'
 import AnimalEdit from './routes/AnimalEdit'
 import Enclosures from './routes/Enclosures'
+import Care from './routes/Care'
 import Labels from './routes/Labels'
 import AnimalPublic from './routes/AnimalPublic'
 import './styles.css'
@@ -29,6 +30,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route element={<Layout />}>
                 <Route path="/animals" element={<Animals />} />
                 <Route path="/animals/:id" element={<AnimalEdit />} />
+                <Route path="/animals/:id/care" element={<Care />} />
                 <Route path="/enclosures" element={<Enclosures />} />
                 <Route path="/labels" element={<Labels />} />
               </Route>
