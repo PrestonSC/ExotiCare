@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { daysAgo, fmtDate, label, localToIso, nowLocal } from '../lib/format'
 import LineChart from '../components/LineChart'
+import PhotosTab from '../components/PhotosTab'
 import type { Animal, Feeding, HealthEvent, Shed, Weight } from '../lib/types'
 
 type Table = 'weights' | 'feedings' | 'sheds' | 'health_events'
@@ -237,7 +238,7 @@ function HealthTab({ id }: { id: string }) {
   )
 }
 
-const tabs = ['weight', 'feeding', 'sheds', 'health'] as const
+const tabs = ['weight', 'feeding', 'sheds', 'health', 'photos'] as const
 type Tab = (typeof tabs)[number]
 
 export default function Care() {
@@ -275,6 +276,7 @@ export default function Care() {
       {tab === 'feeding' && <FeedingTab id={id} />}
       {tab === 'sheds' && <ShedTab id={id} />}
       {tab === 'health' && <HealthTab id={id} />}
+      {tab === 'photos' && animal.data && <PhotosTab animal={animal.data} />}
     </>
   )
 }

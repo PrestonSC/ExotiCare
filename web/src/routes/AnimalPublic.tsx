@@ -9,6 +9,7 @@ import { cleaningStatus, describeDue, feedingStatus } from '../lib/due'
 
 interface PublicAnimal {
   name: string
+  photo_path: string | null
   species: string
   morph: string | null
   sex: 'male' | 'female' | 'unknown'
@@ -50,66 +51,84 @@ export default function AnimalPublic() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['public-animal', token],
     queryFn: async () => {
-      const { data, error } = await supabase!.rpc('get_animal_public', { p_token: token })
-      if (error) throw error
-      return data as PublicAnimal | null
+      // Keep the last good copy so a scan still shows something on weak room Wi-Fi.
+      const cacheKey = `rm_pub_${token}`
+      try {
+        const { data, error } = await supabase!.rpc('get_animal_public', { p_token: token })
+        if (error) throw error
+        try { localStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), data })) } catch { /* storage unavailable */ }
+        return { animal: data as PublicAnimal | null, cachedAt: null as number | null }
+      } catch (e) {
+        try {
+          const raw = localStorage.getItem(cacheKey)
+          if (raw) {
+            const c = JSON.parse(raw) as { at: number; data: PublicAnimal | null }
+            if (c.data) return { animal: c.data, cachedAt: c.at }
+          }
+        } catch { /* ignore */ }
+        throw e
+      }
     },
+    retry: 1,
   })
+  const animal = data?.animal
 
   return (
     <main className="page">
       {isLoading && <p>Loading…</p>}
       {error && <p className="error">Could not load this animal.</p>}
-      {data === null && <p>This QR code is no longer valid.</p>}
-      {data && (
+      {data && animal === null && <p>This QR code is no longer valid.</p>}
+      {data?.cachedAt && <p className="banner muted">Offline: showing info saved {daysAgo(new Date(data.cachedAt).toISOString())}.</p>}
+      {animal && (
         <>
-          <h1>{data.name}</h1>
-          {data.health_open.map((h, i) => (
+          {animal.photo_path && <img className="hero" alt={animal.name} src={supabase!.storage.from('animal-public').getPublicUrl(animal.photo_path).data.publicUrl} />}
+          <h1>{animal.name}</h1>
+          {animal.health_open.map((h, i) => (
             <p key={i} className="flag-box">
               <span className="badge">{label(h.kind)}</span> {h.description}
               <span className="muted"> · since {fmtDate(h.since)}</span>
             </p>
           ))}
           <dl className="facts">
-            <dt>Species</dt><dd>{data.species}</dd>
-            {data.morph && <><dt>Morph</dt><dd>{data.morph}</dd></>}
-            {data.sex !== 'unknown' && <><dt>Sex</dt><dd>{data.sex}</dd></>}
-            {age(data.hatch_date) && <><dt>Age</dt><dd>{age(data.hatch_date)}</dd></>}
-            {data.status !== 'active' && <><dt>Status</dt><dd>{data.status}</dd></>}
+            <dt>Species</dt><dd>{animal.species}</dd>
+            {animal.morph && <><dt>Morph</dt><dd>{animal.morph}</dd></>}
+            {animal.sex !== 'unknown' && <><dt>Sex</dt><dd>{animal.sex}</dd></>}
+            {age(animal.hatch_date) && <><dt>Age</dt><dd>{age(animal.hatch_date)}</dd></>}
+            {animal.status !== 'active' && <><dt>Status</dt><dd>{animal.status}</dd></>}
             <dt>Enclosure</dt>
             <dd>
-              {data.enclosure
-                ? [data.enclosure.label, data.enclosure.location].filter(Boolean).join(' · ')
+              {animal.enclosure
+                ? [animal.enclosure.label, animal.enclosure.location].filter(Boolean).join(' · ')
                 : 'Not assigned'}
             </dd>
-            {data.weights.length > 0 && (
+            {animal.weights.length > 0 && (
               <>
                 <dt>Weight</dt>
-                <dd>{Number(data.weights[data.weights.length - 1].grams)} g
-                  <span className="muted"> · {fmtDate(data.weights[data.weights.length - 1].at)}</span></dd>
+                <dd>{Number(animal.weights[animal.weights.length - 1].grams)} g
+                  <span className="muted"> · {fmtDate(animal.weights[animal.weights.length - 1].at)}</span></dd>
               </>
             )}
             <dt>Last fed</dt>
             <dd>
-              {data.last_fed
-                ? `${daysAgo(data.last_fed.at)} · ${label(data.last_fed.outcome)} · ${[data.last_fed.prey_stage, data.last_fed.prey_type === 'asf' ? 'ASF' : data.last_fed.prey_type].filter(Boolean).join(' ')}`
+              {animal.last_fed
+                ? `${daysAgo(animal.last_fed.at)} · ${label(animal.last_fed.outcome)} · ${[animal.last_fed.prey_stage, animal.last_fed.prey_type === 'asf' ? 'ASF' : animal.last_fed.prey_type].filter(Boolean).join(' ')}`
                 : 'No record'}
             </dd>
             <dt>Next feeding</dt>
-            <dd>{describeDue(feedingStatus({ intervalDays: data.feed_interval_days, lastAteAt: data.last_ate_at, lastFeed: data.last_fed ? { at: data.last_fed.at, outcome: data.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
+            <dd>{describeDue(feedingStatus({ intervalDays: animal.feed_interval_days, lastAteAt: animal.last_ate_at, lastFeed: animal.last_fed ? { at: animal.last_fed.at, outcome: animal.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
             <dt>Last cleaned</dt>
-            <dd>{data.last_cleaned ? `${daysAgo(data.last_cleaned.at)} · ${data.last_cleaned.kind}` : 'No record'}</dd>
-            {data.clean_interval_days && (
+            <dd>{animal.last_cleaned ? `${daysAgo(animal.last_cleaned.at)} · ${animal.last_cleaned.kind}` : 'No record'}</dd>
+            {animal.clean_interval_days && (
               <>
                 <dt>Next cleaning</dt>
-                <dd>{describeDue(cleaningStatus(data.clean_interval_days, data.last_cleaned?.at), 'Cleaning').replace(/^Cleaning:? /, '')}</dd>
+                <dd>{describeDue(cleaningStatus(animal.clean_interval_days, animal.last_cleaned?.at), 'Cleaning').replace(/^Cleaning:? /, '')}</dd>
               </>
             )}
             <dt>Last shed</dt>
-            <dd>{data.last_shed ? `${fmtDate(data.last_shed.at)}${data.last_shed.complete ? '' : ' (incomplete)'}` : 'No record'}</dd>
+            <dd>{animal.last_shed ? `${fmtDate(animal.last_shed.at)}${animal.last_shed.complete ? '' : ' (incomplete)'}` : 'No record'}</dd>
           </dl>
-          {data.weights.length > 1 && (
-            <LineChart compact points={data.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
+          {animal.weights.length > 1 && (
+            <LineChart compact points={animal.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
           )}
           {session
             ? owned.data && <p><Link className="btn" to={`/animals/${owned.data}/care`}>Edit care log</Link></p>

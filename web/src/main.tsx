@@ -11,6 +11,7 @@ import Animals from './routes/Animals'
 import AnimalEdit from './routes/AnimalEdit'
 import Enclosures from './routes/Enclosures'
 import Care from './routes/Care'
+import Settings from './routes/Settings'
 import Labels from './routes/Labels'
 import AnimalPublic from './routes/AnimalPublic'
 import './styles.css'
@@ -35,6 +36,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 <Route path="/animals/:id/care" element={<Care />} />
                 <Route path="/enclosures" element={<Enclosures />} />
                 <Route path="/labels" element={<Labels />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Route>
           </Routes>

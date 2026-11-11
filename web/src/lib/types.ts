@@ -15,6 +15,7 @@ export interface Animal {
   notes: string | null
   public_token: string
   feed_interval_days: number
+  public_photo_path: string | null
 }
 
 export interface Enclosure {
