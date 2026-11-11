@@ -134,7 +134,6 @@ export default function Dashboard() {
       <CleaningCalendar
         enclosures={data.enclosures.filter((e) => occupied.has(e.id))}
         lastFull={Object.fromEntries(data.enclosures.map((e) => [e.id, cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), 1, 1).lastFullAt]))}
-        onChange={refresh}
       />
 
       <h2>All animals</h2>

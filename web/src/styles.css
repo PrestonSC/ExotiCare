@@ -156,3 +156,8 @@ button.tiny { min-height: 36px; padding: 4px 12px; font-size: .9rem; }
 .late-text { color: #b3261e; margin: 0; }
 .add-clean select { width: auto; flex: 1 1 120px; }
 .calendar { margin-top: 20px; }
+.cal-month { margin: 16px 0 0; font-size: 1.05rem; }
+.calendar .legend { margin: 6px 0 0; }
+button.compact { min-width: 56px; }
+.day-detail .todo { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.day-detail p { margin: 0; }
