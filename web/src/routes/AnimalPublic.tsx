@@ -20,9 +20,11 @@ interface PublicAnimal {
   last_fed: { at: string; prey_type: string; prey_stage: string | null; outcome: string } | null
   last_ate_at: string | null
   feed_interval_days: number
-  clean_interval_days: number | null
+  spot_clean_interval_days: number | null
+  full_clean_interval_days: number | null
+  last_spot_clean: string | null
+  last_full_clean: string | null
   last_shed: { at: string; complete: boolean } | null
-  last_cleaned: { at: string; kind: string } | null
   health_open: { kind: string; description: string; since: string }[]
 }
 
@@ -35,6 +37,14 @@ function age(hatch: string | null) {
   if (months < 24) return `${months} mo`
   const y = Math.floor(months / 12)
   return `${y} yr${months % 12 ? ` ${months % 12} mo` : ''}`
+}
+
+const plural = (n: number) => `${n} day${n === 1 ? '' : 's'}`
+function cleanLine(d: { state: string; days: number }, last: string | null) {
+  const when = d.state === 'never' ? 'due now' : d.state === 'due'
+    ? (d.days === 0 ? 'due today' : `overdue by ${plural(d.days)}`)
+    : (d.days === 1 ? 'due tomorrow' : `due in ${plural(d.days)}`)
+  return last ? `${when} · last ${daysAgo(last)}` : `${when} · none logged`
 }
 
 export default function AnimalPublic() {
@@ -116,12 +126,12 @@ export default function AnimalPublic() {
             </dd>
             <dt>Next feeding</dt>
             <dd>{describeDue(feedingStatus({ intervalDays: animal.feed_interval_days, lastAteAt: animal.last_ate_at, lastFeed: animal.last_fed ? { at: animal.last_fed.at, outcome: animal.last_fed.outcome } : null }), 'Feeding').replace(/^Feeding:? /, '')}</dd>
-            <dt>Last cleaned</dt>
-            <dd>{animal.last_cleaned ? `${daysAgo(animal.last_cleaned.at)} · ${animal.last_cleaned.kind}` : 'No record'}</dd>
-            {animal.clean_interval_days && (
+            {animal.spot_clean_interval_days && animal.full_clean_interval_days && (
               <>
-                <dt>Next cleaning</dt>
-                <dd>{describeDue(cleaningStatus(animal.clean_interval_days, animal.last_cleaned?.at), 'Cleaning').replace(/^Cleaning:? /, '')}</dd>
+                <dt>Spot clean</dt>
+                <dd>{cleanLine(cleaningStatus(animal.spot_clean_interval_days, animal.last_spot_clean), animal.last_spot_clean)}</dd>
+                <dt>Full clean</dt>
+                <dd>{cleanLine(cleaningStatus(animal.full_clean_interval_days, animal.last_full_clean), animal.last_full_clean)}</dd>
               </>
             )}
             <dt>Last shed</dt>

@@ -46,3 +46,42 @@ describe('weightDrop', () => {
     expect(weightDrop([{ at: ago(0), grams: 1000 }, { at: ago(100), grams: 2000 }])).toBeNull())
   it('needs two weights', () => expect(weightDrop([{ at: ago(0), grams: 1000 }])).toBeNull())
 })
+
+import { cleanStatus, isFullKind } from './due'
+
+describe('cleanStatus', () => {
+  const spotDaily = 1, fullMonthly = 30
+  it('never cleaned', () => {
+    const s = cleanStatus([], spotDaily, fullMonthly, now)
+    expect(s.spot.state).toBe('never'); expect(s.full.state).toBe('never')
+  })
+  it('spot clean yesterday is due again today; full is untouched', () => {
+    const s = cleanStatus([{ cleaned_at: ago(1), kind: 'spot' }], spotDaily, fullMonthly, now)
+    expect(s.spot.state).toBe('due')
+    expect(s.full.state).toBe('never')
+  })
+  it('spot clean this morning is done until tomorrow', () => {
+    const s = cleanStatus([{ cleaned_at: ago(0.2), kind: 'spot' }], spotDaily, fullMonthly, now)
+    expect(s.spot).toEqual({ state: 'ok', days: 1 })
+  })
+  it('spot clean yesterday is due again today, even if under 24h ago', () => {
+    const lateYesterday = new Date(new Date(now).setHours(0, 30, 0, 0) - 60 * 60 * 1000).toISOString()
+    expect(cleanStatus([{ cleaned_at: lateYesterday, kind: 'spot' }], spotDaily, fullMonthly, now).spot).toEqual({ state: 'due', days: 0 })
+  })
+  it('a full clean also satisfies the spot schedule', () => {
+    const s = cleanStatus([{ cleaned_at: ago(0.2), kind: 'full' }, { cleaned_at: ago(3), kind: 'spot' }], spotDaily, fullMonthly, now)
+    expect(s.spot.state).toBe('ok')
+    expect(s.full).toEqual({ state: 'ok', days: 30 })
+  })
+  it('daily spot cleans never satisfy the monthly full clean', () => {
+    const rows = Array.from({ length: 40 }, (_, i) => ({ cleaned_at: ago(i), kind: 'spot' }))
+    expect(cleanStatus(rows, spotDaily, fullMonthly, now).full.state).toBe('never')
+  })
+  it('full clean 32 days ago is overdue', () => {
+    const s = cleanStatus([{ cleaned_at: ago(32), kind: 'full' }], spotDaily, fullMonthly, now)
+    expect(s.full).toEqual({ state: 'due', days: 2 })
+  })
+  it('treats legacy substrate/disinfect as full-level', () => {
+    expect(isFullKind('substrate')).toBe(true); expect(isFullKind('disinfect')).toBe(true); expect(isFullKind('spot')).toBe(false)
+  })
+})

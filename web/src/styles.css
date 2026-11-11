@@ -125,3 +125,34 @@ table.data { display: block; overflow-x: auto; }
 /* Care-log tabs: 2 rows of 3, same width as the "+ Log" button below */
 .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; margin: 12px 0; padding: 0; }
 .tabs button { width: 100%; padding: 10px 4px; }
+
+/* Cleaning rows */
+.clean-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #8883; }
+.clean-row:first-of-type { border-top: 0; }
+.clean-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.clean-info .late { color: #b3261e; font-weight: 600; }
+.small { font-size: .82rem; }
+button.compact { min-height: 44px; min-width: 84px; padding: 8px 14px; }
+.enc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.enc-head h3 { margin: 0; font-size: 1.1rem; }
+.enc-sub { margin: 2px 0 6px; }
+button.tiny { min-height: 36px; padding: 4px 12px; font-size: .9rem; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Cleaning calendar */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 8px 0; }
+.cal-head { text-align: center; font-size: .8rem; opacity: .6; padding: 2px 0; }
+.cal .day { aspect-ratio: 1 / 1; min-height: 46px; padding: 3px 0; flex-direction: column; justify-content: space-between;
+  background: transparent; color: inherit; border: 1px solid #8883; border-radius: 8px; font-size: .95rem; }
+.cal .day.today { border-color: var(--accent); border-width: 2px; font-weight: 700; }
+.cal .day.sel { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.marks { display: flex; gap: 3px; align-items: center; justify-content: center; height: 10px; }
+.m-spot, .m-full, .m-due { display: inline-block; width: 8px; height: 8px; box-sizing: border-box; }
+.m-spot { border-radius: 50%; border: 2px solid var(--accent); }
+.m-spot.all { background: var(--accent); }
+.m-full { background: var(--series-2); border-radius: 2px; }
+.m-due { border: 2px dashed var(--series-2); border-radius: 2px; }
+.legend .m-spot, .legend .m-full, .legend .m-due { margin-right: 4px; }
+.late-text { color: #b3261e; margin: 0; }
+.add-clean select { width: auto; flex: 1 1 120px; }
+.calendar { margin-top: 20px; }

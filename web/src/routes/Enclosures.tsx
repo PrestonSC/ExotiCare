@@ -1,15 +1,22 @@
 import { useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { daysAgo, label } from '../lib/format'
-import type { Cleaning, Enclosure } from '../lib/types'
+import CleanRow from '../components/CleanRow'
+import { cleanStatus } from '../lib/due'
+import { loadCleanings, type CleaningRow } from '../lib/cleanings'
+import type { Animal, Enclosure, Placement } from '../lib/types'
 
-type Draft = { label: string; location: string; type: string; notes: string; clean: string }
-const blank: Draft = { label: '', location: '', type: '', notes: '', clean: '14' }
+type Draft = { label: string; location: string; type: string; notes: string; spot: string; full: string }
+const blank: Draft = { label: '', location: '', type: '', notes: '', spot: '1', full: '30' }
+const days = (v: string, fallback: number) => Math.min(365, Math.max(1, Math.round(Number(v)) || fallback))
 const clean = (d: Draft) => ({
   label: d.label.trim(), location: d.location.trim() || null,
   type: d.type.trim() || null, notes: d.notes.trim() || null,
-  clean_interval_days: Math.min(365, Math.max(1, Number(d.clean) || 14)),
+  spot_clean_interval_days: days(d.spot, 1), full_clean_interval_days: days(d.full, 30),
+})
+const toDraft = (e: Enclosure): Draft => ({
+  label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '',
+  spot: String(e.spot_clean_interval_days), full: String(e.full_clean_interval_days),
 })
 
 function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
@@ -18,16 +25,26 @@ function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
       <label>Label<input value={d.label} onChange={(e) => set({ ...d, label: e.target.value })} required placeholder="Rack A-3" /></label>
       <label>Location<input value={d.location} onChange={(e) => set({ ...d, location: e.target.value })} placeholder="Reptile room" /></label>
       <label>Type<input value={d.type} onChange={(e) => set({ ...d, type: e.target.value })} placeholder="Tub, rack, vivarium…" /></label>
-      <label>Clean every (days)<input type="number" min="1" max="365" value={d.clean} onChange={(e) => set({ ...d, clean: e.target.value })} /></label>
+      <div className="two-col">
+        <label>Spot clean every (days)
+          <input type="number" min="1" max="365" inputMode="numeric" value={d.spot} onChange={(e) => set({ ...d, spot: e.target.value })} />
+        </label>
+        <label>Full clean every (days)
+          <input type="number" min="1" max="365" inputMode="numeric" value={d.full} onChange={(e) => set({ ...d, full: e.target.value })} />
+        </label>
+      </div>
       <label>Notes<textarea rows={2} value={d.notes} onChange={(e) => set({ ...d, notes: e.target.value })} /></label>
     </>
   )
 }
 
-function Row({ e, last, onChange }: { e: Enclosure; last?: Cleaning; onChange: () => void }) {
+function EnclosureCard({ e, occupant, cleanings, onChange }: {
+  e: Enclosure; occupant?: string; cleanings: CleaningRow[]; onChange: () => void
+}) {
   const [editing, setEditing] = useState(false)
-  const [d, setD] = useState<Draft>({ label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '', clean: String(e.clean_interval_days) })
+  const [d, setD] = useState<Draft>(toDraft(e))
   const [error, setError] = useState<string | null>(null)
+  const st = cleanStatus(cleanings, e.spot_clean_interval_days, e.full_clean_interval_days)
 
   async function save(ev: FormEvent) {
     ev.preventDefault()
@@ -35,52 +52,42 @@ function Row({ e, last, onChange }: { e: Enclosure; last?: Cleaning; onChange: (
     if (error) return setError(error.message)
     setEditing(false); onChange()
   }
-  async function logCleaning(kind: Cleaning['kind']) {
-    const { error } = await supabase!.from('cleanings').insert({ enclosure_id: e.id, kind })
-    if (error) return setError(error.message)
-    onChange()
-  }
   async function remove() {
-    if (!confirm(`Delete ${e.label}?`)) return
+    if (!confirm(`Delete ${e.label}? Its cleaning history is deleted too.`)) return
     const { error } = await supabase!.from('enclosures').delete().eq('id', e.id)
     if (error) return setError(error.message)
     onChange()
   }
 
-  if (!editing)
+  if (editing)
     return (
       <li>
-        <div className="row between">
-          <div>
-            <strong>{e.label}</strong>
-            <div className="muted">{[e.location, e.type].filter(Boolean).join(' · ')}</div>
+        <form onSubmit={save} className="stack">
+          <Fields d={d} set={setD} />
+          {error && <p className="error">{error}</p>}
+          <div className="row">
+            <button>Save</button>
+            <button type="button" className="secondary" onClick={() => { setEditing(false); setD(toDraft(e)) }}>Cancel</button>
+            <button type="button" className="danger" onClick={remove}>Delete</button>
           </div>
-          <button className="secondary" onClick={() => setEditing(true)}>Edit</button>
-        </div>
-        <p className="muted">
-          {last ? `Last cleaned ${daysAgo(last.cleaned_at)} (${label(last.kind).toLowerCase()})` : 'Never cleaned'}
-        </p>
-        <div className="row">
-          <span className="muted">Log cleaning:</span>
-          <button className="secondary" onClick={() => logCleaning('spot')}>Spot</button>
-          <button className="secondary" onClick={() => logCleaning('full')}>Full</button>
-          <button className="secondary" onClick={() => logCleaning('substrate')}>Substrate</button>
-          <button className="secondary" onClick={() => logCleaning('disinfect')}>Disinfect</button>
-        </div>
-        {error && <p className="error">{error}</p>}
+        </form>
       </li>
     )
+
   return (
     <li>
-      <form onSubmit={save} className="stack">
-        <Fields d={d} set={setD} />
-        {error && <p className="error">{error}</p>}
-        <div className="row">
-          <button>Save</button>
-          <button type="button" className="secondary" onClick={() => setEditing(false)}>Cancel</button>
-          <button type="button" className="danger" onClick={remove}>Delete</button>
+      <div className="enc-head">
+        <div>
+          <h3>{e.label}</h3>
+          <div className="muted enc-sub">
+            {[occupant ?? 'Empty', e.location, e.type].filter(Boolean).join(' · ')}
+          </div>
         </div>
-      </form>
+        <button className="secondary tiny" onClick={() => setEditing(true)}>Edit</button>
+      </div>
+      <CleanRow enclosureId={e.id} kind="spot" status={st.spot} lastAt={st.lastSpotAt} onChange={onChange} />
+      <CleanRow enclosureId={e.id} kind="full" status={st.full} lastAt={st.lastFullAt} onChange={onChange} />
+      {error && <p className="error">{error}</p>}
     </li>
   )
 }
@@ -90,20 +97,24 @@ export default function Enclosures() {
   const [d, setD] = useState<Draft>(blank)
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
   const { data, isLoading } = useQuery({
-    queryKey: ['enclosures'],
+    queryKey: ['enclosures-page'],
     queryFn: async () => {
-      const { data, error } = await supabase!.from('enclosures').select('*').order('label')
-      if (error) throw error
-      return data as Enclosure[]
-    },
-  })
-  const cleanings = useQuery({
-    queryKey: ['cleanings'],
-    queryFn: async () => {
-      const { data, error } = await supabase!.from('cleanings').select('*').order('cleaned_at', { ascending: false })
-      if (error) throw error
-      return data as Cleaning[]
+      const sb = supabase!
+      const [enc, cl, pl, an] = await Promise.all([
+        sb.from('enclosures').select('*').order('label'),
+        loadCleanings().then((data) => ({ data, error: null })),
+        sb.from('placements').select('animal_id, enclosure_id').is('end_at', null),
+        sb.from('animals').select('id, name'),
+      ])
+      for (const r of [enc, cl, pl, an]) if (r.error) throw r.error
+      return {
+        enclosures: enc.data as Enclosure[],
+        cleanings: cl.data,
+        placements: pl.data as Pick<Placement, 'animal_id' | 'enclosure_id'>[],
+        animals: an.data as Pick<Animal, 'id' | 'name'>[],
+      }
     },
   })
   const refresh = () => qc.invalidateQueries()
@@ -135,9 +146,16 @@ export default function Enclosures() {
       )}
       {isLoading && <p>Loading…</p>}
       <ul className="cards">
-        {data?.map((e) => <Row key={e.id} e={e} last={cleanings.data?.find((c) => c.enclosure_id === e.id)} onChange={refresh} />)}
+        {data?.enclosures.map((e) => {
+          const animalId = data.placements.find((p) => p.enclosure_id === e.id)?.animal_id
+          return (
+            <EnclosureCard key={e.id} e={e} onChange={refresh}
+              occupant={data.animals.find((a) => a.id === animalId)?.name}
+              cleanings={data.cleanings.filter((c) => c.enclosure_id === e.id)} />
+          )
+        })}
       </ul>
-      {data?.length === 0 && <p>No enclosures yet.</p>}
+      {data?.enclosures.length === 0 && <p>No enclosures yet.</p>}
     </>
   )
 }

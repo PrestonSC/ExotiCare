@@ -24,7 +24,8 @@ export interface Enclosure {
   location: string | null
   type: string | null
   notes: string | null
-  clean_interval_days: number
+  spot_clean_interval_days: number
+  full_clean_interval_days: number
 }
 
 export interface Placement {

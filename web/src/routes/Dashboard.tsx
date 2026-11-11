@@ -1,9 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { daysAgo, label } from '../lib/format'
-import { cleaningStatus, describeDue, feedingStatus, refusalStreak, weightDrop, type Due } from '../lib/due'
-import type { Animal, Cleaning, Enclosure, Feeding, HealthEvent, Placement, Weight } from '../lib/types'
+import { cleanStatus, describeDue, feedingStatus, refusalStreak, weightDrop, type CleanStatus, type Due } from '../lib/due'
+import { loadCleanings, type CleaningRow } from '../lib/cleanings'
+import CleanRow from '../components/CleanRow'
+import CleaningCalendar from '../components/CleaningCalendar'
+import type { Animal, Enclosure, Feeding, HealthEvent, Placement, Weight } from '../lib/types'
 
 async function load() {
   const sb = supabase!
@@ -13,7 +16,7 @@ async function load() {
     sb.from('placements').select('*').is('end_at', null),
     sb.from('feedings').select('animal_id, fed_at, outcome').order('fed_at', { ascending: false }).limit(1000),
     sb.from('weights').select('animal_id, measured_at, grams').order('measured_at', { ascending: false }).limit(1000),
-    sb.from('cleanings').select('enclosure_id, cleaned_at, kind').order('cleaned_at', { ascending: false }).limit(1000),
+    loadCleanings().then((data) => ({ data, error: null })),
     sb.from('health_events').select('*').is('resolved_at', null).order('occurred_at'),
   ])
   for (const r of [animals, enclosures, placements, feedings, weights, cleanings, health]) if (r.error) throw r.error
@@ -23,7 +26,7 @@ async function load() {
     placements: placements.data as Placement[],
     feedings: feedings.data as Pick<Feeding, 'animal_id' | 'fed_at' | 'outcome'>[],
     weights: weights.data as Pick<Weight, 'animal_id' | 'measured_at' | 'grams'>[],
-    cleanings: cleanings.data as Pick<Cleaning, 'enclosure_id' | 'cleaned_at' | 'kind'>[],
+    cleanings: cleanings.data as CleaningRow[],
     health: health.data as HealthEvent[],
   }
 }
@@ -32,12 +35,15 @@ interface Item { key: string; to: string; text: string; sub?: string; urgency: n
 const urgent = (d: Due) => (d.state === 'due' ? 100 + d.days : d.state === 'never' ? 50 : 0)
 
 export default function Dashboard() {
+  const qc = useQueryClient()
+  const refresh = () => qc.invalidateQueries()
   const { data, isLoading, error } = useQuery({ queryKey: ['dashboard'], queryFn: load })
   if (isLoading) return <p>Loading…</p>
   if (error || !data) return <p className="error">{(error as Error)?.message ?? 'Could not load'}</p>
 
   const now = Date.now()
-  const feed: Item[] = [], clean: Item[] = [], alerts: Item[] = []
+  const feed: Item[] = [], alerts: Item[] = []
+  const clean: { enc: Enclosure; occupant?: string; st: CleanStatus; urgency: number }[] = []
   const rows: { animal: Animal; enc?: Enclosure; feed: Due; lastFeed?: string; weight?: number }[] = []
 
   for (const a of data.animals) {
@@ -68,10 +74,12 @@ export default function Dashboard() {
 
   const occupied = new Set(data.placements.filter((p) => data.animals.some((a) => a.id === p.animal_id)).map((p) => p.enclosure_id))
   for (const e of data.enclosures.filter((e) => occupied.has(e.id))) {
-    const last = data.cleanings.find((c) => c.enclosure_id === e.id)
-    const cd = cleaningStatus(e.clean_interval_days, last?.cleaned_at, now)
-    if (cd.state === 'due' || cd.state === 'never')
-      clean.push({ key: e.id, to: '/enclosures', text: e.label, sub: describeDue(cd, 'Cleaning'), urgency: urgent(cd) })
+    const st = cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), e.spot_clean_interval_days, e.full_clean_interval_days, now)
+    const late = (d: Due) => d.state === 'due' || d.state === 'never'
+    if (late(st.spot) || late(st.full)) {
+      const animalId = data.placements.find((p) => p.enclosure_id === e.id)?.animal_id
+      clean.push({ enc: e, occupant: data.animals.find((a) => a.id === animalId)?.name, st, urgency: Math.max(urgent(st.spot), urgent(st.full)) })
+    }
   }
 
   for (const h of data.health) {
@@ -99,7 +107,35 @@ export default function Dashboard() {
       {nothing && <p>Nothing needs attention right now. 🐍</p>}
       {section('Health & alerts', alerts)}
       {section('Feed', feed)}
-      {section('Clean', clean)}
+      {clean.length > 0 && (
+        <section>
+          <h2>Clean <span className="badge">{clean.length}</span></h2>
+          <ul className="cards">
+            {clean.sort((x, y) => y.urgency - x.urgency).map(({ enc, occupant, st }) => (
+              <li key={enc.id}>
+                <div className="enc-head">
+                  <div>
+                    <h3>{enc.label}</h3>
+                    <div className="muted enc-sub">{occupant ?? 'Empty'}</div>
+                  </div>
+                </div>
+                {(st.spot.state === 'due' || st.spot.state === 'never') && (
+                  <CleanRow enclosureId={enc.id} kind="spot" status={st.spot} lastAt={st.lastSpotAt} onChange={refresh} />
+                )}
+                {(st.full.state === 'due' || st.full.state === 'never') && (
+                  <CleanRow enclosureId={enc.id} kind="full" status={st.full} lastAt={st.lastFullAt} onChange={refresh} />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <CleaningCalendar
+        enclosures={data.enclosures.filter((e) => occupied.has(e.id))}
+        lastFull={Object.fromEntries(data.enclosures.map((e) => [e.id, cleanStatus(data.cleanings.filter((c) => c.enclosure_id === e.id), 1, 1).lastFullAt]))}
+        onChange={refresh}
+      />
 
       <h2>All animals</h2>
       <ul className="cards">

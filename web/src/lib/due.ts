@@ -27,9 +27,20 @@ export function feedingStatus(i: FeedInput, now = Date.now()): Due {
   return dueFrom(i.lastAteAt, i.intervalDays, now)
 }
 
+const startOfDay = (ms: number) => { const d = new Date(ms); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() }
+/** Whole calendar days from b to a, in local time (so "cleaned this morning" is 0 days ago all day). */
+const calendarDays = (a: number, b: number) => Math.round((startOfDay(a) - startOfDay(b)) / DAY)
+
+/**
+ * Cleaning is a chore tied to the calendar day, not a 24-hour timer: a daily spot clean done this
+ * morning is finished until tomorrow, and one done yesterday is due again today.
+ */
 export function cleaningStatus(intervalDays: number, lastCleanedAt?: string | null, now = Date.now()): Due {
   if (!lastCleanedAt) return { state: 'never', days: 0 }
-  return dueFrom(lastCleanedAt, intervalDays, now)
+  const since = calendarDays(now, new Date(lastCleanedAt).getTime())
+  return since >= intervalDays
+    ? { state: 'due', days: since - intervalDays }
+    : { state: 'ok', days: intervalDays - since }
 }
 
 function dueFrom(lastAt: string, intervalDays: number, now: number): Due {
@@ -64,5 +75,34 @@ export function describeDue(d: Due, what: string): string {
     case 'wait': return `${what}: wait ${d.days} more day${d.days === 1 ? '' : 's'}`
     case 'due': return d.days === 0 ? `${what} due today` : `${what} overdue by ${d.days} day${d.days === 1 ? '' : 's'}`
     case 'ok': return d.days === 0 ? `${what} due today` : `${what} due in ${d.days} day${d.days === 1 ? '' : 's'}`
+  }
+}
+
+// ---- Cleaning: two schedules per enclosure -------------------------------------------------
+/** Kinds that count as a "full" clean. Older entries logged as substrate/disinfect are full-level. */
+export const FULL_KINDS = ['full', 'substrate', 'disinfect']
+export const isFullKind = (kind: string) => FULL_KINDS.includes(kind)
+
+export interface CleanStatus {
+  spot: Due; full: Due
+  lastSpotAt?: string; lastFullAt?: string
+}
+
+/**
+ * Spot-clean and full-clean status for one enclosure. A full clean also counts as a spot clean
+ * (the enclosure was just cleaned), but a spot clean never counts as a full clean.
+ */
+export function cleanStatus(
+  cleanings: { cleaned_at: string; kind: string }[],
+  spotIntervalDays: number, fullIntervalDays: number, now = Date.now(),
+): CleanStatus {
+  const latest = (rows: { cleaned_at: string }[]) =>
+    rows.reduce<string | undefined>((a, r) => (!a || r.cleaned_at > a ? r.cleaned_at : a), undefined)
+  const lastSpotAt = latest(cleanings)
+  const lastFullAt = latest(cleanings.filter((c) => isFullKind(c.kind)))
+  return {
+    spot: cleaningStatus(spotIntervalDays, lastSpotAt, now),
+    full: cleaningStatus(fullIntervalDays, lastFullAt, now),
+    lastSpotAt, lastFullAt,
   }
 }
