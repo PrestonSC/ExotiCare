@@ -140,7 +140,7 @@ export default function AnimalEdit() {
         </label>
         <label>Notes<textarea rows={4} value={form.notes} onChange={(e) => set('notes', e.target.value)} /></label>
         {error && <p className="error">{error}</p>}
-        <div className="row">
+        <div className="row sticky-actions">
           <button disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
           <button type="button" className="secondary" onClick={() => nav(isNew ? '/animals' : `/animals/${id}/care`)}>Back</button>
           {!isNew && <button type="button" className="danger" onClick={remove}>Delete</button>}

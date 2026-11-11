@@ -45,18 +45,28 @@ function useLog<T>(table: Table, animalId: string) {
   }
 }
 
-function LogForm({ onSubmit, children }: { onSubmit: () => Promise<string | null>; children: ReactNode }) {
+/** Add-entry form that stays collapsed behind one big button, so the history is visible first on a phone. */
+function LogForm({ title, onSubmit, children }: { title: string; onSubmit: () => Promise<string | null>; children: ReactNode }) {
+  const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   async function submit(e: FormEvent) {
     e.preventDefault()
-    setBusy(true); setError(await onSubmit()); setBusy(false)
+    setBusy(true)
+    const err = await onSubmit()
+    setError(err); setBusy(false)
+    if (!err) setOpen(false)
   }
+  if (!open) return <button type="button" className="wide" onClick={() => setOpen(true)}>+ {title}</button>
   return (
     <form onSubmit={submit} className="stack card">
+      <h2>{title}</h2>
       {children}
       {error && <p className="error">{error}</p>}
-      <button disabled={busy}>{busy ? 'Saving…' : 'Add'}</button>
+      <div className="row">
+        <button disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+        <button type="button" className="secondary" onClick={() => { setOpen(false); setError(null) }}>Cancel</button>
+      </div>
     </form>
   )
 }
@@ -77,7 +87,7 @@ function WeightTab({ id }: { id: string }) {
   const asc = [...log.rows].reverse()
   return (
     <>
-      <LogForm onSubmit={async () => {
+      <LogForm title="Log weight" onSubmit={async () => {
         const err = await log.add({ grams: Number(grams), measured_at: localToIso(when), notes: notes.trim() || null })
         if (!err) { setGrams(''); setNotes(''); setWhen(nowLocal()) }
         return err
@@ -115,7 +125,7 @@ function FeedingTab({ id }: { id: string }) {
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }))
   return (
     <>
-      <LogForm onSubmit={async () => {
+      <LogForm title="Log feeding" onSubmit={async () => {
         const err = await log.add({
           fed_at: localToIso(f.when), prey_type: f.prey_type, prey_stage: f.prey_stage.trim() || null,
           prey_weight_g: f.prey_weight_g ? Number(f.prey_weight_g) : null, prep: f.prep, outcome: f.outcome,
@@ -165,7 +175,7 @@ function ShedTab({ id }: { id: string }) {
   const [when, setWhen] = useState(nowLocal()); const [complete, setComplete] = useState(true); const [notes, setNotes] = useState('')
   return (
     <>
-      <LogForm onSubmit={async () => {
+      <LogForm title="Log shed" onSubmit={async () => {
         const err = await log.add({ shed_at: localToIso(when), complete, notes: notes.trim() || null })
         if (!err) { setNotes(''); setComplete(true); setWhen(nowLocal()) }
         return err
@@ -196,7 +206,7 @@ function HealthTab({ id }: { id: string }) {
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }))
   return (
     <>
-      <LogForm onSubmit={async () => {
+      <LogForm title="Log health event" onSubmit={async () => {
         const err = await log.add({
           occurred_at: localToIso(f.when), kind: f.kind, description: f.description.trim(),
           treatment: f.treatment.trim() || null, vet: f.vet.trim() || null, cost: f.cost ? Number(f.cost) : null,

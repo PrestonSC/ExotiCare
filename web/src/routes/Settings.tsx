@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { daysAgo } from '../lib/format'
 import { EXPORT_TABLES, download, fetchAll, toCsv } from '../lib/export'
 import { supabase } from '../lib/supabase'
@@ -50,6 +51,11 @@ export default function Settings() {
           </div>
         </details>
         {error && <p className="error">{error}</p>}
+      </section>
+      <section className="stack">
+        <h2>QR labels</h2>
+        <p className="muted">Print one name + QR code per animal.</p>
+        <div><Link className="btn" to="/labels">Open label sheet</Link></div>
       </section>
       <section className="stack">
         <h2>Account</h2>
