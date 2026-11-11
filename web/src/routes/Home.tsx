@@ -1,13 +1,12 @@
+import { Navigate } from 'react-router-dom'
 import { supabaseConfigured } from '../lib/supabase'
 
 export default function Home() {
+  if (supabaseConfigured) return <Navigate to="/animals" replace />
   return (
-    <main style={{ padding: 16, maxWidth: 640, margin: '0 auto' }}>
+    <main className="page">
       <h1>Reptile Management</h1>
-      <p>
-        Backend:{' '}
-        {supabaseConfigured ? 'Supabase configured' : 'Supabase not configured yet'}
-      </p>
+      <p>Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</p>
     </main>
   )
 }

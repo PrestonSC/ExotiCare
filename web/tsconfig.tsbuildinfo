@@ -1,1 +1,1 @@
-{"root":["./src/main.tsx","./src/lib/supabase.ts","./src/routes/AnimalPublic.tsx","./src/routes/Home.tsx","./vite.config.ts"],"version":"5.9.3"}
+{"root":["./src/main.tsx","./src/components/Layout.tsx","./src/lib/auth.tsx","./src/lib/supabase.ts","./src/lib/types.ts","./src/routes/AnimalEdit.tsx","./src/routes/AnimalPublic.tsx","./src/routes/Animals.tsx","./src/routes/Enclosures.tsx","./src/routes/Home.tsx","./src/routes/Login.tsx","./vite.config.ts"],"version":"5.9.3"}
