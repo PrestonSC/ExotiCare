@@ -146,7 +146,7 @@ Phases 0 to 2 are the MVP and can be done in a few focused sessions. Phase 3 is 
 ## 10. Decisions made
 
 - **QR is per animal**, labelled with the animal's name.
-- **Scans are read-only.** No quick-log for now.
+- **Scans are read-only until unlocked.** The public page has an "Unlock to edit" wall that uses the owner's account password (email is remembered on the device). Unlocking signs in and opens that animal's care log. A per-animal PIN was considered and rejected: 4 digits can be brute-forced through a public endpoint without extra lockout logic, and the account login reuses existing RLS.
 - **No custom domain.** Use the default GitHub Pages URL; finalize the repo name before printing.
 - **No reminders** beyond the in-app dashboard.
 - **Scale: 5 to 10 animals.** Keep it simple: no bulk import, no pagination, one owner.

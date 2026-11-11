@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import Unlock from '../components/Unlock'
+import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
 import LineChart from '../components/LineChart'
 import { daysAgo, fmtDate, label } from '../lib/format'
@@ -32,6 +34,15 @@ function age(hatch: string | null) {
 
 export default function AnimalPublic() {
   const { token } = useParams()
+  const { session } = useAuth()
+  const owned = useQuery({
+    queryKey: ['owned-animal', token, Boolean(session)],
+    enabled: Boolean(session),
+    queryFn: async () => {
+      const { data } = await supabase!.from('animals').select('id').eq('public_token', token!).maybeSingle()
+      return data?.id as string | undefined
+    },
+  })
   const { data, isLoading, error } = useQuery({
     queryKey: ['public-animal', token],
     queryFn: async () => {
@@ -88,6 +99,9 @@ export default function AnimalPublic() {
           {data.weights.length > 1 && (
             <LineChart compact points={data.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
           )}
+          {session
+            ? owned.data && <p><Link className="btn" to={`/animals/${owned.data}/care`}>Edit care log</Link></p>
+            : <Unlock token={token!} />}
         </>
       )}
     </main>
