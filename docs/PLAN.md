@@ -1,4 +1,7 @@
-# Reptile Management: Architecture & Implementation Plan
+# ExotiCare: Architecture & Implementation Plan
+
+> The app was originally called Reptile Management. The GitHub repo (and so the site address, `/ReptileManagement/`) keeps
+> that name on purpose: printed QR codes point at it.
 
 ## 1. Goals and constraints
 

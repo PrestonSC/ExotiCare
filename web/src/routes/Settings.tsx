@@ -23,7 +23,7 @@ export default function Settings() {
     const out: Record<string, unknown> = { exported_at: new Date().toISOString() }
     for (const t of EXPORT_TABLES) out[t] = await fetchAll(t)
     out.cleaning_log = await cleaningLog() // readable version of the calendar history
-    download(`reptiles-${stamp}.json`, JSON.stringify(out, null, 2), 'application/json')
+    download(`exoticare-${stamp}.json`, JSON.stringify(out, null, 2), 'application/json')
     const now = new Date().toISOString()
     try { localStorage.setItem(LAST_KEY, now) } catch { /* storage unavailable */ }
     setLast(now)
