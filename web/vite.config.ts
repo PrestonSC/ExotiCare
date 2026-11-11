@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Served from https://prestonsc.github.io/ReptileManagement/ (the path comes from the GitHub repo name;
-// changing it breaks printed QR codes, so it stays even though the app is branded ExotiCare).
-const base = process.env.GITHUB_ACTIONS ? '/ReptileManagement/' : '/'
+// Served from https://prestonsc.github.io/ExotiCare/ (the path comes from the GitHub repo name, which must be
+// exactly "ExotiCare"). Renaming the repo again changes this address and would break printed QR codes.
+const base = process.env.GITHUB_ACTIONS ? '/ExotiCare/' : '/'
 
 export default defineConfig({
   base,
