@@ -8,7 +8,9 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  # Renamed from "pages" so a deploy run that got stuck on GitHub's side (and can neither be cancelled nor
+  # force-cancelled) can no longer hold the lock and make every later deploy fail to start.
+  group: pages-deploy
   cancel-in-progress: true
 jobs:
   build:
