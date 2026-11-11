@@ -26,7 +26,7 @@ export default function Login() {
 
   return (
     <main className="page narrow">
-      <h1>Reptile Management</h1>
+      <h1>ExotiCare</h1>
       <form onSubmit={submit} className="stack">
         <label>
           Email

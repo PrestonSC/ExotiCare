@@ -2,8 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Served from https://prestonsc.github.io/ReptileManagement/
-const base = process.env.GITHUB_ACTIONS ? '/ReptileManagement/' : '/'
+// Served from https://prestonsc.github.io/ExotiCare/ (the path comes from the GitHub repo name, which must be
+// exactly "ExotiCare"). Renaming the repo again changes this address and would break printed QR codes.
+const base = process.env.GITHUB_ACTIONS ? '/ExotiCare/' : '/'
 
 export default defineConfig({
   base,
@@ -13,9 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Reptile Management',
-        short_name: 'Reptiles',
-        description: 'Care records for my ball pythons',
+        name: 'ExotiCare',
+        short_name: 'ExotiCare',
+        description: 'Care records for my animals',
         theme_color: '#2f7d4f',
         background_color: '#ffffff',
         display: 'standalone',

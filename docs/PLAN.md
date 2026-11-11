@@ -1,4 +1,7 @@
-# Reptile Management: Architecture & Implementation Plan
+# ExotiCare: Architecture & Implementation Plan
+
+> The app was originally called Reptile Management and was renamed ExotiCare before any QR codes were printed. The GitHub
+> repo is `ExotiCare`, so the site address is `prestonsc.github.io/ExotiCare/`.
 
 ## 1. Goals and constraints
 
@@ -54,7 +57,7 @@ Alternative: Cloudflare Pages + Workers + D1. It has no inactivity pause and one
 
 **Threat model:** anyone who has the QR link sees that one enclosure's page. That matches your stated trust model (only people in the room). If a label leaks, "Regenerate QR" in the owner UI rotates that animal's token and the old one dies instantly. The RPC should be cheap and rate limited, and tokens get a unique index.
 
-**QR permanence:** no custom domain, so the codes use `prestonsc.github.io/ReptileManagement`. Renaming the repo or your GitHub username would break every sticker, so settle the repo name before printing labels. (Moving to a custom domain later would mean reprinting; with 5 to 10 animals that is a small job.)
+**QR permanence:** no custom domain, so the codes use `prestonsc.github.io/ExotiCare`. Renaming the repo or your GitHub username would break every sticker, so settle the repo name before printing labels. (Moving to a custom domain later would mean reprinting; with 5 to 10 animals that is a small job.)
 
 ## 4. Data model (Postgres)
 
@@ -153,4 +156,4 @@ Phases 0 to 2 are the MVP and can be done in a few focused sessions. Phase 3 is 
 ## 11. Remaining questions
 
 1. Is a **public repo** OK? Required for free GitHub Pages. No data lives in it.
-2. Do you want the repo name to stay `ReptileManagement` for the permanent QR URL?
+2. ~~Repo name~~: decided, it is `ExotiCare` (renamed before any labels were printed).
