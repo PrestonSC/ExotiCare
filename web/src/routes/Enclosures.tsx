@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import type { Enclosure } from '../lib/types'
+import { daysAgo, label } from '../lib/format'
+import type { Cleaning, Enclosure } from '../lib/types'
 
 type Draft = { label: string; location: string; type: string; notes: string }
 const blank: Draft = { label: '', location: '', type: '', notes: '' }
@@ -21,7 +22,7 @@ function Fields({ d, set }: { d: Draft; set: (d: Draft) => void }) {
   )
 }
 
-function Row({ e, onChange }: { e: Enclosure; onChange: () => void }) {
+function Row({ e, last, onChange }: { e: Enclosure; last?: Cleaning; onChange: () => void }) {
   const [editing, setEditing] = useState(false)
   const [d, setD] = useState<Draft>({ label: e.label, location: e.location ?? '', type: e.type ?? '', notes: e.notes ?? '' })
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +32,11 @@ function Row({ e, onChange }: { e: Enclosure; onChange: () => void }) {
     const { error } = await supabase!.from('enclosures').update(clean(d)).eq('id', e.id)
     if (error) return setError(error.message)
     setEditing(false); onChange()
+  }
+  async function logCleaning(kind: Cleaning['kind']) {
+    const { error } = await supabase!.from('cleanings').insert({ enclosure_id: e.id, kind })
+    if (error) return setError(error.message)
+    onChange()
   }
   async function remove() {
     if (!confirm(`Delete ${e.label}?`)) return
@@ -49,6 +55,17 @@ function Row({ e, onChange }: { e: Enclosure; onChange: () => void }) {
           </div>
           <button className="secondary" onClick={() => setEditing(true)}>Edit</button>
         </div>
+        <p className="muted">
+          {last ? `Last cleaned ${daysAgo(last.cleaned_at)} (${label(last.kind).toLowerCase()})` : 'Never cleaned'}
+        </p>
+        <div className="row">
+          <span className="muted">Log cleaning:</span>
+          <button className="secondary" onClick={() => logCleaning('spot')}>Spot</button>
+          <button className="secondary" onClick={() => logCleaning('full')}>Full</button>
+          <button className="secondary" onClick={() => logCleaning('substrate')}>Substrate</button>
+          <button className="secondary" onClick={() => logCleaning('disinfect')}>Disinfect</button>
+        </div>
+        {error && <p className="error">{error}</p>}
       </li>
     )
   return (
@@ -78,6 +95,14 @@ export default function Enclosures() {
       return data as Enclosure[]
     },
   })
+  const cleanings = useQuery({
+    queryKey: ['cleanings'],
+    queryFn: async () => {
+      const { data, error } = await supabase!.from('cleanings').select('*').order('cleaned_at', { ascending: false })
+      if (error) throw error
+      return data as Cleaning[]
+    },
+  })
   const refresh = () => qc.invalidateQueries()
 
   async function add(ev: FormEvent) {
@@ -93,7 +118,7 @@ export default function Enclosures() {
       <h1>Enclosures</h1>
       {isLoading && <p>Loading…</p>}
       <ul className="cards">
-        {data?.map((e) => <Row key={e.id} e={e} onChange={refresh} />)}
+        {data?.map((e) => <Row key={e.id} e={e} last={cleanings.data?.find((c) => c.enclosure_id === e.id)} onChange={refresh} />)}
       </ul>
       {data?.length === 0 && <p>No enclosures yet.</p>}
       <h2>Add enclosure</h2>

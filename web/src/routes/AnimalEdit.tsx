@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { animalUrl } from '../lib/qr'
@@ -113,6 +113,7 @@ export default function AnimalEdit() {
   return (
     <>
       <h1>{isNew ? 'Add animal' : form.name || 'Animal'}</h1>
+      {!isNew && <p><Link className="btn" to={`/animals/${id}/care`}>Care log: weight, feeding, sheds, health</Link></p>}
       <form onSubmit={save} className="stack">
         <label>Name<input value={form.name} onChange={(e) => set('name', e.target.value)} required /></label>
         <label>Species<input value={form.species} onChange={(e) => set('species', e.target.value)} /></label>

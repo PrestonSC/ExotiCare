@@ -13,7 +13,7 @@ const check = (name, ok, detail = '') => {
   if (!ok) failed++
 }
 
-for (const table of ['animals', 'enclosures', 'placements']) {
+for (const table of ['animals', 'enclosures', 'placements', 'weights', 'feedings', 'sheds', 'cleanings', 'health_events']) {
   const { data, error } = await sb.from(table).select('*').limit(1)
   check(`anon cannot read ${table}`, Boolean(error) || (data ?? []).length === 0, error?.message)
 }
@@ -26,7 +26,7 @@ check('anon cannot rotate tokens', Boolean(rot.error))
 
 if (TEST_TOKEN) {
   const ok = await sb.rpc('get_animal_public', { p_token: TEST_TOKEN })
-  const allowed = new Set(['name', 'species', 'morph', 'sex', 'hatch_date', 'status', 'enclosure'])
+  const allowed = new Set(['name', 'species', 'morph', 'sex', 'hatch_date', 'status', 'enclosure', 'weights', 'last_fed', 'last_shed', 'last_cleaned', 'health_open'])
   const extra = Object.keys(ok.data ?? {}).filter((k) => !allowed.has(k))
   check('valid token returns the animal', Boolean(ok.data?.name))
   check('only whitelisted fields are returned', extra.length === 0, extra.join(','))

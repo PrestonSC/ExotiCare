@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import Unlock from '../components/Unlock'
+import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
+import LineChart from '../components/LineChart'
+import { daysAgo, fmtDate, label } from '../lib/format'
 
 interface PublicAnimal {
   name: string
@@ -10,6 +14,11 @@ interface PublicAnimal {
   hatch_date: string | null
   status: string
   enclosure: { label: string; location: string | null } | null
+  weights: { at: string; grams: number }[]
+  last_fed: { at: string; prey_type: string; prey_stage: string | null; outcome: string } | null
+  last_shed: { at: string; complete: boolean } | null
+  last_cleaned: { at: string; kind: string } | null
+  health_open: { kind: string; description: string; since: string }[]
 }
 
 function age(hatch: string | null) {
@@ -25,6 +34,15 @@ function age(hatch: string | null) {
 
 export default function AnimalPublic() {
   const { token } = useParams()
+  const { session } = useAuth()
+  const owned = useQuery({
+    queryKey: ['owned-animal', token, Boolean(session)],
+    enabled: Boolean(session),
+    queryFn: async () => {
+      const { data } = await supabase!.from('animals').select('id').eq('public_token', token!).maybeSingle()
+      return data?.id as string | undefined
+    },
+  })
   const { data, isLoading, error } = useQuery({
     queryKey: ['public-animal', token],
     queryFn: async () => {
@@ -42,6 +60,12 @@ export default function AnimalPublic() {
       {data && (
         <>
           <h1>{data.name}</h1>
+          {data.health_open.map((h, i) => (
+            <p key={i} className="flag-box">
+              <span className="badge">{label(h.kind)}</span> {h.description}
+              <span className="muted"> · since {fmtDate(h.since)}</span>
+            </p>
+          ))}
           <dl className="facts">
             <dt>Species</dt><dd>{data.species}</dd>
             {data.morph && <><dt>Morph</dt><dd>{data.morph}</dd></>}
@@ -54,7 +78,30 @@ export default function AnimalPublic() {
                 ? [data.enclosure.label, data.enclosure.location].filter(Boolean).join(' · ')
                 : 'Not assigned'}
             </dd>
+            {data.weights.length > 0 && (
+              <>
+                <dt>Weight</dt>
+                <dd>{Number(data.weights[data.weights.length - 1].grams)} g
+                  <span className="muted"> · {fmtDate(data.weights[data.weights.length - 1].at)}</span></dd>
+              </>
+            )}
+            <dt>Last fed</dt>
+            <dd>
+              {data.last_fed
+                ? `${daysAgo(data.last_fed.at)} · ${label(data.last_fed.outcome)} · ${[data.last_fed.prey_stage, data.last_fed.prey_type === 'asf' ? 'ASF' : data.last_fed.prey_type].filter(Boolean).join(' ')}`
+                : 'No record'}
+            </dd>
+            <dt>Last cleaned</dt>
+            <dd>{data.last_cleaned ? `${daysAgo(data.last_cleaned.at)} · ${data.last_cleaned.kind}` : 'No record'}</dd>
+            <dt>Last shed</dt>
+            <dd>{data.last_shed ? `${fmtDate(data.last_shed.at)}${data.last_shed.complete ? '' : ' (incomplete)'}` : 'No record'}</dd>
           </dl>
+          {data.weights.length > 1 && (
+            <LineChart compact points={data.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
+          )}
+          {session
+            ? owned.data && <p><Link className="btn" to={`/animals/${owned.data}/care`}>Edit care log</Link></p>
+            : <Unlock token={token!} />}
         </>
       )}
     </main>
