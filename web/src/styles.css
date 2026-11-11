@@ -121,3 +121,7 @@ table.data { display: block; overflow-x: auto; }
 .page a:not(.btn) { color: var(--accent); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; min-height: 44px; }
 .page .cards li > a { color: inherit; font-weight: inherit; display: flex; align-items: stretch; min-height: 0; }
 .tabbar a { font-weight: 500; }
+
+/* Care-log tabs: 2 rows of 3, same width as the "+ Log" button below */
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow: visible; margin: 12px 0; padding: 0; }
+.tabs button { width: 100%; padding: 10px 4px; }
