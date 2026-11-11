@@ -5,7 +5,7 @@ import { daysAgo, label } from '../lib/format'
 import { cleanStatus, describeDue, feedingStatus, refusalStreak, weightDrop, type CleanStatus, type Due } from '../lib/due'
 import { loadCleanings, type CleaningRow } from '../lib/cleanings'
 import CleanRow from '../components/CleanRow'
-import CleaningCalendar from '../components/CleaningCalendar'
+import CareCalendar from '../components/CareCalendar'
 import type { Animal, Enclosure, Feeding, HealthEvent, Placement, Weight } from '../lib/types'
 
 async function load() {
@@ -132,7 +132,12 @@ export default function Dashboard() {
         </section>
       )}
 
-      <CleaningCalendar
+      <CareCalendar
+        animals={data.animals}
+        feedPlans={Object.fromEntries(data.animals.map((a) => [a.id, {
+          intervalDays: a.feed_interval_days, anchor: a.feed_anchor_date,
+          lastAt: data.feedings.find((f) => f.animal_id === a.id && f.outcome === 'ate')?.fed_at,
+        }]))}
         enclosures={data.enclosures.filter((e) => occupied.has(e.id))}
         fullPlans={Object.fromEntries(data.enclosures.map((e) => [e.id, {
           intervalDays: e.full_clean_interval_days, anchor: e.full_anchor_date,
