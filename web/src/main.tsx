@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './lib/auth'
-import Layout, { RequireAuth } from './components/Layout'
+import Layout, { MaybeLayout, RequireAuth } from './components/Layout'
 import Dashboard from './routes/Dashboard'
 import Home from './routes/Home'
 import Login from './routes/Login'
@@ -14,6 +14,9 @@ import Care from './routes/Care'
 import Settings from './routes/Settings'
 import Trends from './routes/Trends'
 import Labels from './routes/Labels'
+// The care guide is large (text and diagrams), so it loads on demand rather than with the app.
+const Guides = lazy(() => import('./routes/Guides'))
+const GuideArticle = lazy(() => import('./routes/GuideArticle'))
 import AnimalPublic from './routes/AnimalPublic'
 import './styles.css'
 
@@ -25,10 +28,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <HashRouter>
+          <Suspense fallback={<p className="page">Loading…</p>}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/a/:token" element={<AnimalPublic />} />
+            <Route element={<MaybeLayout />}>
+              <Route path="/guides" element={<Guides />} />
+              <Route path="/guides/:slug" element={<GuideArticle />} />
+            </Route>
             <Route element={<RequireAuth />}>
               <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -44,6 +52,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               </Route>
             </Route>
           </Routes>
+          </Suspense>
         </HashRouter>
       </AuthProvider>
     </QueryClientProvider>

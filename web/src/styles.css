@@ -172,3 +172,89 @@ button.compact { min-width: 56px; }
 .m-fdue { border: 2px dashed var(--series-1); }
 .legend .m-fed, .legend .m-offered, .legend .m-fdue { margin-right: 6px; }
 .cal-tools { margin: 4px 0; }
+
+/* ---------- Care guide ---------- */
+.guide-hero { display: flex; gap: 14px; align-items: center; margin: 14px 0; padding: 14px; border: 2px solid var(--accent); border-radius: 12px; text-decoration: none; color: inherit; }
+.guide-list li > a { flex-direction: row; gap: 14px; align-items: flex-start; }
+.guide-list .grow { display: flex; flex-direction: column; gap: 3px; }
+.emoji { font-size: 1.8rem; line-height: 1.2; }
+.disclaimer { margin-top: 24px; }
+.guide h1 { margin-bottom: .2em; }
+.toc { margin: 12px 0 8px; border: 1px solid #8884; border-radius: 10px; padding: 0 12px; }
+.toc ul { list-style: none; padding: 0 0 8px; margin: 0; display: flex; flex-direction: column; }
+.toc button.link { text-align: left; width: 100%; justify-content: flex-start; color: var(--accent); opacity: 1; font-weight: 500; }
+.prose { line-height: 1.6; font-size: 1.02rem; overflow-wrap: anywhere; }
+.prose h2 { margin: 1.6em 0 .4em; font-size: 1.3rem; scroll-margin-top: 12px; padding-top: .3em; border-top: 1px solid #8883; }
+.prose h2:first-child { border-top: 0; margin-top: .6em; }
+.prose h3 { margin: 1.2em 0 .3em; font-size: 1.1rem; scroll-margin-top: 12px; }
+.prose p { margin: .6em 0; }
+.prose ul, .prose ol { padding-left: 1.3em; margin: .6em 0; }
+.prose li { margin: .25em 0; }
+.prose li input[type=checkbox] { width: 18px; height: 18px; min-height: 0; margin-right: 6px; vertical-align: middle; }
+.prose ul:has(input[type=checkbox]) { list-style: none; padding-left: .2em; }
+.prose a { color: var(--accent); font-weight: 500; }
+.prose .tbl { overflow-x: auto; margin: 12px 0; border: 1px solid #8884; border-radius: 10px; }
+.prose table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.prose th, .prose td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #8883; vertical-align: top; }
+.prose th { background: #8881; font-weight: 600; }
+.prose tr:last-child td { border-bottom: 0; }
+.prose td:first-child { font-weight: 500; }
+.prose blockquote { margin: 14px 0; padding: 10px 14px; border-left: 4px solid #8886; border-radius: 6px; background: #8881; }
+.prose blockquote p { margin: .3em 0; }
+.callout.c-tip { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.callout.c-warning { border-left-color: #b3261e; background: color-mix(in srgb, #b3261e 10%, transparent); }
+.callout.c-vet { border-left-color: var(--series-1); background: color-mix(in srgb, var(--series-1) 12%, transparent); }
+.callout.c-safety { border-left-color: var(--series-2); background: color-mix(in srgb, var(--series-2) 12%, transparent); }
+.guide-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
+.guide-nav a { color: var(--accent); font-weight: 600; text-decoration: none; max-width: 48%; }
+
+/* Figures */
+.gfig { margin: 18px 0; }
+.gfig svg { width: 100%; height: auto; display: block; }
+.gfig figcaption { font-size: .88rem; opacity: .75; margin-top: 6px; line-height: 1.4; }
+.gfig svg text { fill: currentColor; font-family: inherit; }
+.gfig .tick { font-size: 9.5px; fill-opacity: .75; }
+.gfig .zlabel { font-size: 11px; }
+.gfig .zlabel.out { fill-opacity: .9; }
+.gfig .strong { font-weight: 700; fill-opacity: 1; }
+.gfig .small { font-size: 8.5px; }
+.gfig .z-bad { fill: #b3261e; fill-opacity: .55; }
+.gfig .z-warn { fill: var(--series-4); fill-opacity: .6; }
+.gfig .z-ok { fill: var(--accent); fill-opacity: .3; }
+.gfig .z-good { fill: var(--accent); fill-opacity: .75; }
+.gfig .z-neutral { fill: #8886; fill-opacity: .35; }
+.gfig .zline { stroke: currentColor; stroke-opacity: .35; stroke-width: 1; }
+.gfig .grid { stroke: currentColor; stroke-opacity: .15; }
+.gfig .outline { stroke: currentColor; stroke-opacity: .45; stroke-width: 1.5; }
+.gfig .heatzone { fill: none; stroke: #e9803a; stroke-width: 2; stroke-dasharray: 5 3; }
+.gfig .hide { fill: #5a4632; }
+.gfig .hide.moss { fill: #3f6b3a; }
+.gfig svg text.onhide, .gfig svg text.onwater { fill: #fff; font-size: 10px; }
+.gfig svg text.onhide.small { font-size: 8.5px; }
+.gfig .water { fill: #3b8fc4; }
+.gfig .plant { fill: #4a9a5a; fill-opacity: .85; }
+.gfig .probe { fill: #b3261e; }
+.gfig .body { fill: #f3efe0; stroke: #8a7a55; stroke-width: 1.5; }
+.gfig .spine { stroke: #8a7a55; stroke-width: 1.5; fill: none; stroke-linecap: round; }
+.gfig .scale { fill: #cfc9b0; stroke: #8a7a55; stroke-width: .6; }
+.gfig .skin { fill: #e8a0a0; fill-opacity: .85; }
+.gfig .noskin { fill: none; }
+.gfig .band-f { fill: var(--series-2); fill-opacity: .35; stroke: var(--series-2); stroke-width: 1.5; }
+.gfig .band-m { fill: var(--series-1); fill-opacity: .35; stroke: var(--series-1); stroke-width: 1.5; }
+.gfig .stage { fill: none; stroke: currentColor; stroke-opacity: .5; stroke-width: 1.5; }
+.gfig .eyeoutline { stroke: currentColor; stroke-opacity: .4; }
+.gfig .bracket { stroke: currentColor; stroke-opacity: .6; stroke-width: 2; fill: none; }
+.gfig .headdraw { stroke: #8a7a55; stroke-width: 1.5; }
+.gfig .hot { fill: #b3261e; fill-opacity: .16; stroke: #b3261e; stroke-width: 1.5; stroke-dasharray: 3 2; }
+.gfig .foldline { stroke: #cfc9b0; stroke-width: 3; fill: none; stroke-linecap: round; }
+.gfig .pit { stroke: #8a7a55; stroke-width: 2; fill: none; stroke-linecap: round; }
+.gfig .tile { fill: #2f7d4f; }
+.gfig .snake { fill: #f3efe0; }
+.gfig .eye { fill: #1f3d2b; }
+.gfig .tongue { stroke: #e34948; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.gfig .mouth { fill: #e58a8a; }
+.gfig-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+.gfig-grid.single { grid-template-columns: minmax(210px, 320px); }
+.gfig-grid .gfig { margin: 0; }
+.gpanel figcaption { text-align: left; }
+.small { font-size: .82rem; }

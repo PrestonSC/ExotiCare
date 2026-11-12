@@ -145,6 +145,8 @@ export default function Dashboard() {
         }]))}
       />
 
+      <p><Link to="/guides">📖 Care guide</Link></p>
+
       <h2>All animals</h2>
       <ul className="cards">
         {rows.map((r) => (
