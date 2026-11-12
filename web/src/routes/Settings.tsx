@@ -55,6 +55,11 @@ export default function Settings() {
         {error && <p className="error">{error}</p>}
       </section>
       <section className="stack">
+        <h2>Care guide</h2>
+        <p className="muted">Ball python care: setup, temperatures, feeding, health, mites and more.</p>
+        <div><Link className="btn" to="/guides">Open the care guide</Link></div>
+      </section>
+      <section className="stack">
         <h2>QR labels</h2>
         <p className="muted">Print one name + QR code per animal.</p>
         <div><Link className="btn" to="/labels">Open label sheet</Link></div>

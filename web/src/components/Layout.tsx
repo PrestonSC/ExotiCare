@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Navigate, NavLink, Outlet } from 'react-router-dom'
+import { Link, Navigate, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../lib/auth'
 
 export function RequireAuth() {
@@ -21,6 +21,18 @@ const tabs = [
   { to: '/trends', label: 'Trends', icon: <Icon><path d="M3 20h18M5 16l4-5 4 3 6-8" /></Icon> },
   { to: '/settings', label: 'Settings', icon: <Icon><path d="M4 7h10M18 7h2M4 17h2M10 17h10" /><circle cx="16" cy="7" r="2" /><circle cx="8" cy="17" r="2" /></Icon> },
 ]
+
+/** Pages anyone can read (the care guide): full app chrome when signed in, a plain page otherwise. */
+export function MaybeLayout() {
+  const { session } = useAuth()
+  if (session) return <Layout />
+  return (
+    <main className="page">
+      <p className="row between"><strong>ExotiCare</strong><Link to="/login">Sign in</Link></p>
+      <Outlet />
+    </main>
+  )
+}
 
 export default function Layout() {
   return (

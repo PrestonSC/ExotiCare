@@ -153,6 +153,8 @@ Phases 0 to 2 are the MVP and can be done in a few focused sessions. Phase 3 is 
 - **No reminders** beyond the in-app dashboard.
 - **Scale: 5 to 10 animals.** Keep it simple: no bulk import, no pagination, one owner.
 
+- **Care guide.** A built-in ball python care guide (`/#/guides`): 16 short guides with original diagrams, searchable, readable without logging in (so it can be shared with family and friends), and cached for offline use. Content lives in `web/src/guides/content/`; diagrams in `web/src/guides/figures.tsx`.
+
 ## 11. Remaining questions
 
 1. Is a **public repo** OK? Required for free GitHub Pages. No data lives in it.

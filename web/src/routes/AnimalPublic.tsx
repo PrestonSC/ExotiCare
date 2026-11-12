@@ -143,6 +143,7 @@ export default function AnimalPublic() {
           {animal.weights.length > 1 && (
             <LineChart compact points={animal.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
           )}
+          <p><Link to="/guides">📖 Care guide</Link></p>
           {session
             ? owned.data && <p><Link className="btn" to={`/animals/${owned.data}/care`}>Edit care log</Link></p>
             : <Unlock token={token!} />}
