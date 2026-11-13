@@ -258,3 +258,13 @@ button.compact { min-width: 56px; }
 .gfig-grid .gfig { margin: 0; }
 .gpanel figcaption { text-align: left; }
 .small { font-size: .82rem; }
+
+/* Body-language panels */
+.gfig-grid.roomy { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.gpanel svg { border-radius: 16px; box-shadow: 0 1px 4px #0003; }
+.gtag { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .72rem; font-weight: 700; color: #fff; letter-spacing: .02em; vertical-align: 1px; }
+.gtag-calm { background: #2f7d4f; }
+.gtag-stress { background: #c98500; color: #1b1b1b; }
+.gtag-defend { background: #b3261e; }
+.gtag-check { background: #6a6f78; }
+.gtag-vet { background: #2a78d6; }
