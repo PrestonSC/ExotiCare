@@ -238,53 +238,154 @@ export const ShedTimeline = () => (
 
 /* ------------------------------------------------------------------ body language and the curled-up ball */
 
-function SnakeHead({ shape, tongue, mouth, tucked }: { shape: string; tongue?: boolean; mouth?: boolean; tucked?: boolean }) {
-  const h = SNAKES[shape].head
+const HEAD = '#3e2d1b'
+const GOLD = '#c8963f'
+
+/** A ball python head, drawn pointing right, placed and rotated at the end of the body. */
+function Head({ at, mouth, tucked, tongue }: { at: [number, number, number, number]; mouth?: boolean; tucked?: boolean; tongue?: boolean }) {
+  const [x, y, angle, sc] = at
+  const eye = (cy: number, closed?: boolean) =>
+    closed ? <path d={`M16 ${cy - 2} Q20 ${cy + 2} 24 ${cy - 2}`} stroke="#14100a" strokeWidth="1.6" fill="none" strokeLinecap="round" /> : (
+      <g>
+        <circle cx="20" cy={cy} r="4.2" fill="#d9a83a" />
+        <ellipse cx="20.4" cy={cy} rx="1.1" ry="3.1" fill="#120d07" />
+        <circle cx="18.6" cy={cy - 1.4} r="0.9" fill="#fff" fillOpacity=".8" />
+      </g>
+    )
   return (
-    <g transform={`translate(${h.x} ${h.y}) rotate(${h.angle})`}>
+    <g transform={`translate(${x} ${y}) rotate(${angle}) scale(${tucked ? sc * 0.66 : sc})`}>
       {mouth ? (
         <>
-          <path d="M10 -2 L46 -15 L46 15 L10 2 Z" className="mouth" />
-          <ellipse cx="4" rx="16" ry="14" className="snake" />
-          <ellipse cx="22" cy="-8" rx="24" ry="8" transform="rotate(-10 22 -8)" className="snake" />
-          <ellipse cx="22" cy="8" rx="24" ry="8" transform="rotate(10 22 8)" className="snake" />
-          <circle cx="14" cy="-10" r="3.4" className="eye" />
+          <path d="M2 3 L54 -1 L46 28 Z" fill="#d9707a" />
+          <path d="M8 4 L50 2 L46 20 Z" fill="#a8434f" fillOpacity=".6" />
+          <g transform="rotate(24 4 4)">
+            <path d="M-6 3 C10 2 34 4 54 4 C52 12 32 17 12 16 C0 15 -10 11 -6 3 Z" fill={HEAD} />
+            <path d="M12 14 C28 15 42 11 52 6" stroke={GOLD} strokeWidth="1.4" fill="none" strokeLinecap="round" strokeOpacity=".8" />
+          </g>
+          <path d="M-18 0 C-18 -12 -6 -18 8 -17 C24 -16 40 -10 56 -2 L56 2 C40 2 24 2 8 4 C-6 5 -18 9 -18 0 Z" fill={HEAD} />
+          <path d="M6 -14 C22 -17 40 -12 54 -4" stroke={GOLD} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeOpacity=".85" />
+          <path d="M-4 -3 C10 -6 26 -5 40 -2" stroke="#7a5b34" strokeWidth="2" fill="none" strokeLinecap="round" strokeOpacity=".6" />
+          {eye(-8)}
         </>
       ) : (
         <>
-          <ellipse cx={tucked ? 4 : 10} rx={tucked ? 15 : 27} ry={tucked ? 11 : 18} className="snake" />
-          {!tucked && <><circle cx="16" cy="-9" r="3.6" className="eye" /><circle cx="16" cy="9" r="3.6" className="eye" /></>}
+          <path d="M-20 0 C-20 -11 -8 -16 5 -16 C20 -15 34 -9 43 -3 C47 -1 47 1 43 3 C34 9 20 15 5 16 C-8 16 -20 11 -20 0 Z" fill={HEAD} />
+          <path d="M-4 -13 C10 -15 26 -12 40 -5 M-4 13 C10 15 26 12 40 5" stroke={GOLD} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeOpacity=".85" />
+          <path d="M0 -4 C12 -6 26 -5 36 -2" stroke="#7a5b34" strokeWidth="2" fill="none" strokeLinecap="round" strokeOpacity=".65" />
+          {eye(-8, tucked)}{eye(8, tucked)}
+          <circle cx="42" cy="-1.6" r=".9" fill="#14100a" /><circle cx="42" cy="1.6" r=".9" fill="#14100a" />
         </>
       )}
-      {tongue && <path d="M36 0 H56 M56 0 L65 -7 M56 0 L65 7" className="tongue" />}
+      {tongue && <path d="M47 0 H62 M62 0 L70 -6 M62 0 L70 6" stroke="#d6455d" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />}
     </g>
   )
 }
 
-function Panel3({ shape, title, note, tongue, mouth, tucked }: { shape: string; title: string; note: string; tongue?: boolean; mouth?: boolean; tucked?: boolean }) {
+function Snake({ shape, mouth, tucked, tongue }: { shape: string; mouth?: boolean; tucked?: boolean; tongue?: boolean }) {
+  const s = SNAKES[shape]
+  return (
+    <g>
+      <path d={s.belly} fill="#eadcb8" />
+      <path d={s.back} fill="#46341f" />
+      <path d={s.light} fill="#fff" fillOpacity=".1" />
+      {s.blots.map(([x, y, rx, ry, rot], i) => (
+        <ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} transform={`rotate(${rot} ${x} ${y})`} fill={GOLD} fillOpacity=".92" />
+      ))}
+      <Head at={s.head} mouth={mouth} tucked={tucked} tongue={tongue} />
+    </g>
+  )
+}
+
+const PEBBLES: [number, number, number][] = [[24, 40, 3], [60, 24, 2], [210, 34, 3], [236, 80, 2], [30, 112, 2.5], [236, 150, 3], [190, 176, 2], [70, 178, 2.5], [150, 22, 2]]
+
+function Scene({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <defs>
+        <linearGradient id="sandg" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#e6d6aa" /><stop offset="1" stopColor="#cdb685" />
+        </linearGradient>
+      </defs>
+      <rect width="260" height="190" rx="16" fill="url(#sandg)" />
+      {PEBBLES.map(([x, y, r], i) => <ellipse key={i} cx={x} cy={y} rx={r * 1.4} ry={r} fill="#b8a06c" fillOpacity=".55" />)}
+      {children}
+    </>
+  )
+}
+
+const shadow = (cx: number, cy: number, rx: number, ry = 8) => <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="#000" fillOpacity=".16" />
+
+type Tone = 'calm' | 'stress' | 'defend' | 'check' | 'vet'
+const TAG: Record<Tone, string> = { calm: 'Calm', stress: 'Stressed', defend: 'Defensive', check: 'Check why', vet: 'See a vet' }
+
+function BLPanel({ title, note, tone, label, children }: { title: string; note: string; tone: Tone; label: string; children: ReactNode }) {
   return (
     <figure className="gfig gpanel">
-      <svg viewBox="0 0 260 190" role="img" aria-label={`${title}: ${note}`}>
-        <rect width="260" height="190" rx="16" className="tile" />
-        <path d={SNAKES[shape].d} className="snake" />
-        <SnakeHead shape={shape} tongue={tongue} mouth={mouth} tucked={tucked} />
-      </svg>
-      <figcaption><strong>{title}</strong><br />{note}</figcaption>
+      <svg viewBox="0 0 260 190" role="img" aria-label={label}><Scene>{children}</Scene></svg>
+      <figcaption><span className={`gtag gtag-${tone}`}>{TAG[tone]}</span> <strong>{title}</strong><br />{note}</figcaption>
     </figure>
   )
 }
 
+const Explore = () => (
+  <BLPanel tone="calm" title="Relaxed and curious" note="Head raised, loose body, slow tongue flicks. A good moment to handle."
+           label="A ball python with its head raised, flicking its tongue, body loose and relaxed">
+    {shadow(110, 174, 100)}<Snake shape="explore" tongue />
+  </BLPanel>
+)
+
+const Rest = () => (
+  <BLPanel tone="calm" title="Resting in or near its hide" note="Loosely coiled, head resting on the body. Most of the day looks like this."
+           label="A ball python loosely coiled with its head resting on its body, in front of a hide">
+    <path d="M18 120 C18 30 242 30 242 120 Z" fill="#6f553a" />
+    <path d="M18 120 C18 30 242 30 242 120" fill="none" stroke="#4e3a26" strokeWidth="3" />
+    {shadow(128, 150, 74)}<Snake shape="rest" />
+  </BLPanel>
+)
+
+const Ball = ({ note }: { note?: string }) => (
+  <BLPanel tone="stress" title="Balled up" note={note ?? 'Head tucked in the middle: scared, not angry. Stay calm, leave it alone or hold it gently.'}
+           label="A ball python coiled into a tight ball with its head tucked into the middle">
+    {shadow(130, 156, 76, 10)}<Snake shape="ball" tucked />
+  </BLPanel>
+)
+
+const Strike = () => (
+  <BLPanel tone="defend" title="S-curve, ready to strike" note="Neck pulled back and tense, mouth open. Back away slowly and do not reach in suddenly."
+           label="A ball python with its neck pulled back in an S-curve and its mouth open, ready to strike">
+    {shadow(150, 176, 100)}<Snake shape="strike" mouth />
+    <path d="M44 40 L30 34 M42 56 L26 56 M44 72 L30 78" stroke="#b3261e" strokeWidth="3" strokeLinecap="round" />
+  </BLPanel>
+)
+
+const Soak = () => (
+  <BLPanel tone="check" title="Soaking in the water bowl" note="A short soak is normal. Long or frequent soaking means check heat, mites, or a shed on the way."
+           label="A ball python coiled in its water bowl with its head resting over the rim">
+    {shadow(104, 168, 70, 9)}
+    <ellipse cx="104" cy="132" rx="66" ry="38" fill="#8d99a6" />
+    <ellipse cx="104" cy="130" rx="57" ry="31" fill="#5aa7d6" />
+    <Snake shape="soak" />
+    <path d="M60 140 Q70 135 80 140 M120 150 Q130 145 140 150" stroke="#fff" strokeOpacity=".5" strokeWidth="2" fill="none" strokeLinecap="round" />
+  </BLPanel>
+)
+
+const Stargaze = () => (
+  <BLPanel tone="vet" title="Star-gazing" note="Head tilted back, looking up, or head tremors. This is a neurological warning sign: see a vet."
+           label="A ball python with its neck raised and head tilted back, looking up, with small tremor marks around the head">
+    {shadow(110, 176, 100)}<Snake shape="stargaze" />
+    <path d="M118 30 Q112 40 118 50 M104 24 Q96 38 104 52 M172 30 Q178 40 172 50" stroke="#2a78d6" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+  </BLPanel>
+)
+
 export const BodyLanguage = () => (
-  <div className="gfig-grid">
-    <Panel3 shape="explore" title="Relaxed and curious" note="Head up, loose body, slow tongue flicks." tongue />
-    <Panel3 shape="ball" title="Balled up" note="Head tucked in the middle: scared, not angry. Leave it or hold gently." tucked />
-    <Panel3 shape="strike" title="S-curve, ready to strike" note="Neck pulled back and tense. Back away slowly." mouth />
+  <div className="gfig-grid roomy">
+    <Explore /><Rest /><Ball /><Strike /><Soak /><Stargaze />
   </div>
 )
 
 export const BallUp = () => (
   <div className="gfig-grid single">
-    <Panel3 shape="ball" title="The ball python's defence" note="When frightened it curls into a ball with its head tucked in. That is where the name comes from." tucked />
+    <Ball note="When frightened it curls into a ball with its head tucked in. That is where the name comes from." />
   </div>
 )
 
