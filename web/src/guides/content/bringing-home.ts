@@ -8,7 +8,7 @@ export const bringingHome: Guide = {
   body: `
 ## Getting ready
 
-Have the enclosure **fully set up and running for at least 48 hours** before the snake comes home, with temperatures and humidity in range. Adjusting a thermostat while a snake sits in a too-cold or too-hot tub is how things go wrong. See [Enclosure setup](guide:enclosure) and [Temperature and humidity](guide:temps-humidity).
+Buy everything on the [Shopping list](guide:shopping-list) first. Have the enclosure **fully set up and running for at least 48 hours** before the snake comes home, with temperatures and humidity in range. Adjusting a thermostat while a snake sits in a too-cold or too-hot tub is how things go wrong. See [Enclosure setup](guide:enclosure) and [Temperature and humidity](guide:temps-humidity).
 
 ## The ride home
 
