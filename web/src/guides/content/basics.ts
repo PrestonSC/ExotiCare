@@ -42,6 +42,8 @@ Ball pythons (*Python regius*) are calm, small-to-medium snakes from the grassla
 4. You have an exotic vet's name and number saved.
 5. You have somewhere quiet and low-traffic to put the enclosure.
 
+The full tick-off list is in [Shopping list](guide:shopping-list).
+
 ## Choosing a healthy snake
 
 Buy captive-bred, never wild-caught. Wild-caught animals are far more likely to carry parasites and to refuse food. Whether you buy from a breeder, a reptile show or a shop, look for:

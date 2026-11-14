@@ -1,5 +1,6 @@
 import type { Guide } from './types'
 import { basics } from './content/basics'
+import { shoppingList } from './content/shopping-list'
 import { bringingHome } from './content/bringing-home'
 import { enclosure } from './content/enclosure'
 import { tempsHumidity } from './content/temps-humidity'
@@ -20,7 +21,7 @@ export type { Guide }
 
 /** In reading order. The quick reference is shown first on the index. */
 export const GUIDES: Guide[] = [
-  basics, bringingHome, enclosure, tempsHumidity, feeding, weightCondition, shedding, handling,
+  basics, shoppingList, bringingHome, enclosure, tempsHumidity, feeding, weightCondition, shedding, handling,
   bodyLanguage, bitesSafety, health, mites, cleaning, troubleshooting, cheatSheet, glossary,
 ]
 

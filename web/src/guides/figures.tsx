@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { SNAKES } from './snakes'
+import ShoppingList from './ShoppingList'
 
 /** Diagrams for the care guides. All drawn here as SVG so they work offline and never break from a dead image link. */
 
@@ -428,5 +429,6 @@ export const FIGURES: Record<string, () => JSX.Element> = {
   'body-condition': BodyCondition,
   'shed-timeline': ShedTimeline,
   'body-language': BodyLanguage,
+  'shopping-list': ShoppingList,
   'mite-hotspots': MiteHotspots,
 }

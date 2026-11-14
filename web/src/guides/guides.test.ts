@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { GUIDES } from './index'
 import { FIGURES } from './figures'
 import { renderGuide, readMinutes } from './render'
+import { SHOPPING, TIER_LABEL, allItems } from './shopping'
 
 const APP_PATHS = new Set(['/dashboard', '/animals', '/enclosures', '/trends', '/settings', '/labels', '/guides'])
 
@@ -47,5 +48,19 @@ describe('care guides', () => {
     const html = (parts[0] as { html: string }).html
     expect(html).toContain('class="callout c-warning"')
     expect(html).toContain('class="tbl"')
+  })
+
+  it('has a shopping list with unique ids, valid tiers and the essentials', () => {
+    const items = allItems()
+    const ids = items.map((i) => i.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const g of SHOPPING) expect(g.items.length, g.id).toBeGreaterThan(0)
+    for (const i of items) {
+      expect(Object.keys(TIER_LABEL), i.id).toContain(i.tier)
+      expect(i.name.length, i.id).toBeGreaterThan(3)
+      expect(i.note.length, i.id).toBeGreaterThan(3)
+    }
+    const names = items.filter((i) => i.tier === 'essential').map((i) => i.name.toLowerCase()).join(' | ')
+    for (const must of ['thermostat', 'hygrometer', 'temperature gun', 'tongs', 'scale', 'vet', 'hides']) expect(names, must).toContain(must)
   })
 })
