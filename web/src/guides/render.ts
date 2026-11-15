@@ -32,6 +32,7 @@ export function renderGuide(body: string): Rendered {
       .replace(CALLOUT, (_m, kind: string) => `<blockquote class="callout c-${kind.toLowerCase()}"><p><strong>${kind}:</strong>`)
       .replace(/<table>/g, '<div class="tbl"><table>')
       .replace(/<\/table>/g, '</table></div>')
+      .replace(/<a href="(https?:\/\/[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"')
       .replace(/href="guide:([\w-]+)"/g, 'href="#/guides/$1"')
       .replace(/href="app:(\/[\w/-]*)"/g, 'href="#$1"')
     if (html.trim()) parts.push({ kind: 'html', html })

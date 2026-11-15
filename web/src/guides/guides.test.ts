@@ -3,6 +3,7 @@ import { GUIDES } from './index'
 import { FIGURES } from './figures'
 import { renderGuide, readMinutes } from './render'
 import { SHOPPING, TIER_LABEL, allItems } from './shopping'
+import { VIDEO_URL } from './content/feeding'
 
 const APP_PATHS = new Set(['/dashboard', '/animals', '/enclosures', '/trends', '/settings', '/labels', '/guides'])
 
@@ -63,4 +64,25 @@ describe('care guides', () => {
     const names = items.filter((i) => i.tier === 'essential').map((i) => i.name.toLowerCase()).join(' | ')
     for (const must of ['thermostat', 'hygrometer', 'temperature gun', 'tongs', 'scale', 'vet', 'hides']) expect(names, must).toContain(must)
   })
+
+  it('opens external links safely in a new tab', () => {
+    const { parts } = renderGuide('See [a video](https://example.com/x) and [another guide](guide:feeding).')
+    const html = (parts[0] as { html: string }).html
+    expect(html).toContain('href="https://example.com/x" target="_blank" rel="noopener noreferrer"')
+    expect(html).toContain('href="#/guides/feeding"')
+    expect(html).not.toMatch(/href="#\/guides\/feeding" target/)
+  })
+
+  it('feeding guide links to the video (without tracking parameters) and keeps the key sizing rules', () => {
+    const feeding = GUIDES.find((g) => g.slug === 'feeding')!
+    expect(VIDEO_URL).toBe('https://youtu.be/9luyBtK2BJ0')
+    expect(VIDEO_URL).not.toContain('?')
+    expect(feeding.body).toContain(VIDEO_URL)
+    const body = feeding.body.toLowerCase()
+    expect(body).toContain('small rat')            // males never need more
+    expect(body).toContain('medium rat')           // females never need more
+    expect(body).toContain('every 3 to 4 weeks')   // the biggest older females
+    expect(body).not.toContain('200 to 300+ g')    // the old oversized adult meal
+  })
 })
+

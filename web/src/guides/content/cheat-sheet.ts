@@ -26,11 +26,13 @@ See [Temperature and humidity](guide:temps-humidity).
 | | |
 |---|---|
 | **What** | Frozen-thawed mouse or rat, warmed |
-| **Size** | As wide as the snake's widest part, or 10 to 15 % of body weight |
-| **Hatchling** | Every 5 to 7 days |
-| **Juvenile** | Every 7 to 10 days |
-| **Sub-adult** | Every 10 to 14 days |
-| **Adult** | Every 14 to 21 days |
+| **Young snake: size** | As wide as the widest part, or 10 to 15 % of body weight |
+| **Adult male** | Small rat at most |
+| **Adult female** | Medium rat at most |
+| **Hatchling and juvenile** | Weekly (rat pups, then weaned rats) |
+| **From small rats up** | Every 2 weeks |
+| **Very large, older female** | Every 3 to 4 weeks |
+| **Flexible?** | Yes. A day early or late, or a skipped meal, is fine |
 | **After a meal** | No handling for 48 hours |
 | **After regurgitating** | Wait 14 days, then a smaller meal |
 | **Refusing** | Normal. Watch weight, not the refusal |

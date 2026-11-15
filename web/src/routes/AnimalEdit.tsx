@@ -153,7 +153,7 @@ export default function AnimalEdit() {
         <label>Price paid<input type="number" step="0.01" min="0" value={form.price} onChange={(e) => set('price', e.target.value)} /></label>
         <label>Feed every (days)
           <input type="number" min="1" max="90" value={form.feed_interval_days} onChange={(e) => set('feed_interval_days', e.target.value)} />
-          <span className="muted">Typical ball pythons: juveniles 5–7, adults 10–14.</span>
+          <span className="muted">Typical ball pythons: babies and juveniles 7, from small rats up 14, very large older females 21–28.</span>
         </label>
         <label>A planned feeding day
           <input type="date" value={form.feed_anchor_date} onChange={(e) => set('feed_anchor_date', e.target.value)} />

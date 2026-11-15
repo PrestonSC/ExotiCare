@@ -24,7 +24,7 @@ The goal is simple: **leave the snake alone to settle in.**
 |---|---|
 | 0 to 1 | Put the snake in the enclosure and walk away. Fresh water, hides in place, heat on. |
 | 1 to 5 | Do not handle. Spot clean only when you really must, and quietly. Check temperatures and humidity daily. |
-| 5 to 7 | Offer the **first meal** of a frozen-thawed rodent in the evening, at the size the previous owner was using. If it refuses, that is normal. Try again in a week. |
+| 5 to 7 | Offer the **first meal** of a frozen-thawed rodent in the evening, of the **same type and size** the previous owner was using, so it recognises its food in a new place. Switch it later if you want to change the prey. If it refuses, that is normal. Try again in a week. |
 | 7 to 14 | Still no handling. Aim for at least one or two successful meals in a row. |
 | After 2 weeks | If it is eating and looks settled, start short handling sessions. See [Handling](guide:handling). |
 
