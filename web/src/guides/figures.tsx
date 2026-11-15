@@ -115,7 +115,7 @@ export const EnclosureLayout = () => (
 
 export const PreySize = () => (
   <Fig label="Prey should be about as wide as the widest part of the snake: a matching bar is right, a much wider bar is too big and a very narrow one is too small" vb="0 0 340 196"
-       caption="Compare the prey's width with the snake's widest part. Another check: the meal should weigh about 10 to 15 % of the snake.">
+       caption="For young snakes, compare the prey's width with the snake's widest part, or aim for 10 to 15 % of its weight. Adults stop at a small rat (males) or medium rat (females).">
     <text x="10" y="16" className="tick strong">Snake: widest part of the body</text>
     <rect x="10" y="22" width="150" height="22" rx="11" className="body" />
     <text x="10" y="64" className="tick strong">Prey</text>
@@ -125,7 +125,7 @@ export const PreySize = () => (
     <text x="110" y="116" className="zlabel">! Too small: under about 2/3 of the width</text>
     <rect x="10" y="132" width="210" height="20" rx="10" className="z-bad" />
     <text x="10" y="170" className="zlabel">✕ Too big: wider than the snake. Risk of regurgitation</text>
-    <text x="10" y="186" className="tick">Weigh the rodent if you can: aim for 10 to 15 % of the snake's weight.</text>
+    <text x="10" y="186" className="tick">Young snakes: 10 to 15 % of body weight. Big adults: do not size up past a small or medium rat.</text>
   </Fig>
 )
 
