@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { SNAKES } from './snakes'
 import ShoppingList from './ShoppingList'
+import VideoList from './VideoList'
 
 /** Diagrams for the care guides. All drawn here as SVG so they work offline and never break from a dead image link. */
 
@@ -208,16 +209,16 @@ export const BodyCondition = () => (
 /* ------------------------------------------------------------------ shed timeline */
 
 const STAGES: { name: string; days: string; eye: string; extra?: string }[] = [
-  { name: 'Dull', days: '1 to 3 d', eye: '#b9b4a0' },
-  { name: 'In blue', days: '2 to 5 d', eye: '#7fb2d9' },
-  { name: 'Clearing', days: '1 to 3 d', eye: '#2b2b2b' },
+  { name: 'Dull', days: 'about 1 to 2 wk', eye: '#b9b4a0' },
+  { name: 'In blue', days: 'a few days', eye: '#7fb2d9' },
+  { name: 'Clearing', days: 'a few days', eye: '#2b2b2b' },
   { name: 'Shed', days: '1 to 2 d', eye: '#f3efe0' },
   { name: 'Done', days: 'normal', eye: '#2f7d4f' },
 ]
 
 export const ShedTimeline = () => (
   <Fig label="The shed cycle: dull skin, blue eyes, clearing, shedding, done. No handling or feeding while dull or blue, and raise humidity throughout" vb="0 0 340 150"
-       caption="Raise humidity for the whole cycle. Leave the snake alone, with no food, while it is dull or in blue.">
+       caption="Raise humidity for the whole cycle. Leave the snake alone while it is dull or in blue. Skipping a meal is fine.">
     <line x1="30" x2="310" y1="78" y2="78" className="zline" />
     {STAGES.map((s, i) => {
       const cx = 30 + i * 70
@@ -231,9 +232,9 @@ export const ShedTimeline = () => (
         </g>
       )
     })}
-    <text x="170" y="142" textAnchor="middle" className="tick">The whole cycle takes about 10 to 14 days.</text>
+    <text x="170" y="142" textAnchor="middle" className="tick">The whole cycle takes about 2 to 3 weeks.</text>
     <path d="M14 56 H100" className="bracket" /><text x="57" y="50" textAnchor="middle" className="tick strong">No handling or food</text>
-    <path d="M14 36 H310" className="bracket" /><text x="162" y="30" textAnchor="middle" className="tick strong">Humidity 65 to 75 %</text>
+    <path d="M14 36 H310" className="bracket" /><text x="162" y="30" textAnchor="middle" className="tick strong">Raise humidity</text>
   </Fig>
 )
 
@@ -430,5 +431,6 @@ export const FIGURES: Record<string, () => JSX.Element> = {
   'shed-timeline': ShedTimeline,
   'body-language': BodyLanguage,
   'shopping-list': ShoppingList,
+  'video-list': VideoList,
   'mite-hotspots': MiteHotspots,
 }

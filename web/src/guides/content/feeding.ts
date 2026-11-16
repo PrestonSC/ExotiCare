@@ -1,6 +1,8 @@
 import type { Guide } from '../types'
 
-export const VIDEO_URL = 'https://youtu.be/9luyBtK2BJ0'
+import { videoUrl } from '../videos'
+
+export const VIDEO_URL = videoUrl('9luyBtK2BJ0')
 
 export const feeding: Guide = {
   slug: 'feeding',
@@ -71,6 +73,17 @@ The schedule is a guide, not a rule.
 - **Look at the snake.** A male that looks a little thin can get an extra meal and fill out. The body shapes in [Weight and body condition](guide:weight-condition) tell you more than the calendar.
 - **You do not need to feed extra through the year.** Only breeding females need more.
 
+### Switching to frozen-thawed, or from mice to rats
+
+A snake that has only eaten live, or only mice, will often take the change if the new prey **smells like the old food**:
+
+1. **Thaw the new prey slowly** in lukewarm water, and warm the head.
+2. **Blow a hair dryer toward the tub** so the warm air carries the smell of the prey to the snake.
+3. For **mouse to rat**, thaw **a mouse and a rat** together. Rub or scent the rat with the mouse, then offer the **rat**.
+4. If it refuses, try again at the next scheduled feeding. Do not rush.
+
+If a **first meal is live**, **watch the whole time** and remove it if the snake does not strike quickly. See the safety note above.
+
 ## Thawing and warming the meal
 
 1. **Thaw in sealed zip bags in cold or lukewarm water** (never hot) for a few hours, or in the fridge overnight. Cold water is faster than the fridge, and the bag keeps the rodent dry. Never microwave it.
@@ -100,7 +113,7 @@ Some snakes do not need the extra warmth. Boas, house snakes and a few pythons (
 Ball pythons are famous for turning down meals. It is **usually not an emergency**, especially in healthy adults. Common causes:
 
 - **Wrong temperatures or humidity.** Check the basics first. See [Temperature and humidity](guide:temps-humidity).
-- **Shedding** or about to shed (blue eyes). Do not feed in blue.
+- **Shedding.** Most ball pythons will not eat while in shed, and that is fine: **skip the meal** and offer again after the shed. A normal shed is only a couple of weeks, so it is not a reason for months of refusing. See [Shedding](guide:shedding).
 - **Breeding season**, roughly October to March, especially in adult males, who may skip meals for months.
 - **Stress**: a recent move, too much handling, an exposed enclosure, noise, other pets.
 - **Illness or mites.** See [Health and illness](guide:health) and [Mites](guide:mites).

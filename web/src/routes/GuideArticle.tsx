@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom'
 import { GUIDES, guideBySlug } from '../guides'
 import { FIGURES } from '../guides/figures'
 import { readMinutes, renderGuide } from '../guides/render'
+import { videosFor } from '../guides/videos'
+import { VideoItem } from '../guides/VideoList'
 
 export default function GuideArticle() {
   const { slug = '' } = useParams()
@@ -43,6 +45,14 @@ export default function GuideArticle() {
         const Fig = FIGURES[p.name]
         return Fig ? <Fragment key={n}><Fig /></Fragment> : null
       })}
+
+      {videosFor(guide.slug).length > 0 && (
+        <section className="related-videos">
+          <h2>Related videos</h2>
+          <ul className="video-list">{videosFor(guide.slug).map((v) => <VideoItem key={v.id} v={v} />)}</ul>
+          <p className="small"><Link to="/guides/videos">All videos →</Link></p>
+        </section>
+      )}
 
       <nav className="guide-nav">
         {prev ? <Link to={`/guides/${prev.slug}`}>← {prev.title}</Link> : <span />}

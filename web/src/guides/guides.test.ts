@@ -4,6 +4,7 @@ import { FIGURES } from './figures'
 import { renderGuide, readMinutes } from './render'
 import { SHOPPING, TIER_LABEL, allItems } from './shopping'
 import { VIDEO_URL } from './content/feeding'
+import { VIDEOS, videoUrl } from './videos'
 
 const APP_PATHS = new Set(['/dashboard', '/animals', '/enclosures', '/trends', '/settings', '/labels', '/guides'])
 
@@ -83,6 +84,19 @@ describe('care guides', () => {
     expect(body).toContain('medium rat')           // females never need more
     expect(body).toContain('every 3 to 4 weeks')   // the biggest older females
     expect(body).not.toContain('200 to 300+ g')    // the old oversized adult meal
+  })
+
+  it('lists videos with valid ids, safe links and an existing guide to go with', () => {
+    const slugs = new Set(GUIDES.map((g) => g.slug))
+    const ids = VIDEOS.map((v) => v.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const v of VIDEOS) {
+      expect(v.id, v.title).toMatch(/^[A-Za-z0-9_-]{11}$/)
+      expect(videoUrl(v.id)).toMatch(/^https:\/\/youtu\.be\/[A-Za-z0-9_-]{11}$/)
+      expect(slugs.has(v.topic), `${v.title} -> ${v.topic}`).toBe(true)
+      expect(v.title.length).toBeGreaterThan(8)
+      expect(v.note.length).toBeGreaterThan(20)
+    }
   })
 })
 
