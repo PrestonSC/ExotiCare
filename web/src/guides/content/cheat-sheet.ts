@@ -33,7 +33,7 @@ See [Temperature and humidity](guide:temps-humidity).
 | **From small rats up** | Every 2 weeks |
 | **Very large, older female** | Every 3 to 4 weeks |
 | **Flexible?** | Yes. A day early or late, or a skipped meal, is fine |
-| **After a meal** | No handling for 48 hours |
+| **After a meal** | No handling for 48 to 72 hours |
 | **After regurgitating** | Wait 14 days, then a smaller meal |
 | **Refusing** | Normal. Watch weight, not the refusal |
 
@@ -51,16 +51,16 @@ See [Weight and body condition](guide:weight-condition).
 
 ## Shedding
 
-- Every 4 to 10 weeks.
-- Blue eyes, then clear, then shed in about 10 to 14 days.
-- **No handling and no food while blue.**
+- Every 4 to 10 weeks. A shed cycle takes about **2 to 3 weeks**.
+- Pink belly, dull, blue eyes, clear, then shed.
+- **No handling while blue.** Most snakes will not eat in shed, and **skipping a meal is fine**.
 - Check the **eye caps and tail tip** after.
 
 See [Shedding](guide:shedding).
 
 ## Handling
 
-- Settle in for 2 weeks before handling.
+- Start after the **first meal plus 48 to 72 hours** (about 1 to 2 weeks in the new home).
 - Wash hands. Approach from the side. Support half the body.
 - 10 to 20 minutes, 1 to 3 times a week.
 - Never grab the head. Never wrap around the neck.
@@ -70,7 +70,7 @@ See [Handling](guide:handling).
 ## Cleaning
 
 - **Daily spot clean** and fresh water.
-- **Full clean about monthly.**
+- **Full clean every 4 to 6 weeks, never beyond 6.**
 - Safe: F10, chlorhexidine, diluted bleach (rinse well).
 - Avoid: phenols, essential oils, bleach plus ammonia.
 

@@ -12,7 +12,7 @@ Ball pythons are **not venomous**. They have many small, curved teeth, so a bite
 
 ## Why bites happen
 
-1. **Feeding response.** The snake smelled food or sensed warmth on your hand and struck by mistake. This is the most common reason.
+1. **Feeding response ("food mode").** The snake smelled food or sensed warmth on your hand and struck by mistake. In food mode a snake **bites first and does not stop to think**. This is the most common reason. Snakes can be in food mode for days before a feed day. See [Body language](guide:body-language).
 2. **Defence.** It felt cornered, startled or was grabbed.
 3. **A mistake in the dark** or when it could not see (blue shed).
 

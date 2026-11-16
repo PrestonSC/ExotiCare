@@ -27,7 +27,7 @@ Ball pythons are cold-blooded: they need to move between a warm spot and a cool 
 | Situation | Target |
 |---|---|
 | Everyday | **55 to 65 %** (hatchlings and juveniles do well toward the upper end) |
-| Shedding (see [Shedding](guide:shedding)) | **65 to 75 %** |
+| Shedding (see [Shedding](guide:shedding)) | **65 to 75 %**. One experienced breeder holds about 80 % during a shed if there is no condensation, so see the note in Shedding |
 | Too low | **Under about 45 %**: stuck shed, dehydration, dry skin |
 | Too high for too long | **Over about 80 %**: scale rot, respiratory infections, mould |
 
@@ -35,7 +35,8 @@ Ball pythons are cold-blooded: they need to move between a warm spot and a cool 
 
 | Heat source | Notes |
 |---|---|
-| **Heat tape or heat mat under a tub** | Good for racks and tubs. **Always** on a thermostat |
+| **Heat tape or heat mat under a tub** | Good for racks and tubs. **Always** on a thermostat. Cover roughly **a third of the floor** so there is a cool side |
+| **Overhead heat** (radiant panel or deep heat projector) | Best for **tall enclosures or deep substrate**, where a mat cannot warm the surface. A ceramic emitter or deep heat projector gives **no light**; a basking lamp **dries the substrate faster** than a ceramic emitter |
 | **Radiant heat panel (overhead)** | Very safe and even, best for wooden or PVC vivariums. Does not dry the air much |
 | **Ceramic heat emitter in a dome** | Good for glass tanks. Dries the air and needs a guard so the snake cannot touch it |
 | **Heat rocks** | **Do not use.** They cause burns |

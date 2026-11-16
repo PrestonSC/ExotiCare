@@ -10,6 +10,7 @@ export function VideoItem({ v }: { v: Video }) {
         <span className="video-text">
           <span className="video-title">{v.title}</span>
           <span className="video-note">{v.note}</span>
+          {v.by && <span className="video-note">By {v.by}</span>}
           <span className="video-open">Opens YouTube in a new tab</span>
         </span>
       </a>
