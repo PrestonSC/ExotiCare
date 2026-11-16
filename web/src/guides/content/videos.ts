@@ -4,7 +4,7 @@ export const videos: Guide = {
   slug: 'videos',
   title: 'Videos: watch and learn',
   emoji: '🎬',
-  blurb: 'Videos from experienced keepers, grouped by topic, for when you would rather watch and listen than read.',
+  blurb: 'Videos on ball python care, grouped by topic, for when you would rather watch and listen than read.',
   body: `
 ## Videos by topic
 
