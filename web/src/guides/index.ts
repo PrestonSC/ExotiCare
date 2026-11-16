@@ -14,6 +14,7 @@ import { health } from './content/health'
 import { mites } from './content/mites'
 import { cleaning } from './content/cleaning'
 import { troubleshooting } from './content/troubleshooting'
+import { videos } from './content/videos'
 import { cheatSheet } from './content/cheat-sheet'
 import { glossary } from './content/glossary'
 
@@ -22,7 +23,7 @@ export type { Guide }
 /** In reading order. The quick reference is shown first on the index. */
 export const GUIDES: Guide[] = [
   basics, shoppingList, bringingHome, enclosure, tempsHumidity, feeding, weightCondition, shedding, handling,
-  bodyLanguage, bitesSafety, health, mites, cleaning, troubleshooting, cheatSheet, glossary,
+  bodyLanguage, bitesSafety, health, mites, cleaning, troubleshooting, videos, cheatSheet, glossary,
 ]
 
 export const guideBySlug = (slug: string) => GUIDES.find((g) => g.slug === slug)

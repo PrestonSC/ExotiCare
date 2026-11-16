@@ -1,6 +1,8 @@
 import type { Guide } from '../types'
 
-export const VIDEO_URL = 'https://youtu.be/9luyBtK2BJ0'
+import { videoUrl } from '../videos'
+
+export const VIDEO_URL = videoUrl('9luyBtK2BJ0')
 
 export const feeding: Guide = {
   slug: 'feeding',
