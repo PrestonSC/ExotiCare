@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Unlock from '../components/Unlock'
 import { useAuth } from '../lib/auth'
@@ -85,6 +86,7 @@ export default function AnimalPublic() {
     retry: 1,
   })
   const animal = data?.animal
+  const [card, setCard] = useState(false)
 
   return (
     <main className="page">
@@ -143,7 +145,27 @@ export default function AnimalPublic() {
           {animal.weights.length > 1 && (
             <LineChart compact points={animal.weights.map((w) => ({ at: w.at, value: Number(w.grams) }))} />
           )}
-          <p><Link to="/guides">📖 Care guide</Link></p>
+          <p className="no-print"><Link to="/guides">📖 Care guide</Link></p>
+          <p className="no-print"><button type="button" className="btn" onClick={() => setCard((c) => !c)}>{card ? 'Hide sitter care card' : '🧳 Sitter care card'}</button></p>
+          {card && (
+            <section className="sitter-card" aria-label="Sitter care card">
+              <h2>Care card: {animal.name}</h2>
+              <p className="muted">{[animal.species, animal.morph].filter(Boolean).join(' · ')}</p>
+              <ul>
+                <li><strong>Feeding:</strong> every {animal.feed_interval_days} days. Last fed: {animal.last_fed ? daysAgo(animal.last_fed.at) : 'no record'}. Do <strong>not</strong> feed unless the owner has said so, and never handle for 48 to 72 hours after a meal.</li>
+                <li><strong>Water:</strong> check daily. Empty, rinse and refill if dirty.</li>
+                <li><strong>Temperature:</strong> warm spot 88 to 92 °F (31 to 33 °C), cool side 78 to 80 °F (26 to 27 °C). Never above 95 °F (35 °C).</li>
+                <li><strong>Humidity:</strong> about 55 to 65 %.</li>
+                <li><strong>Lid:</strong> make sure it is latched and the snake is inside.</li>
+                <li><strong>Cleaning:</strong> remove droppings if you see them.</li>
+                <li><strong>Handling:</strong> none, unless the owner says it is OK.</li>
+                {animal.enclosure && <li><strong>Enclosure:</strong> {[animal.enclosure.label, animal.enclosure.location].filter(Boolean).join(' · ')}</li>}
+              </ul>
+              <p><strong>Call the owner or a vet</strong> for wheezing or bubbles, a stuck-open mouth, temperatures out of range, or a snake that looks limp or has escaped.</p>
+              <p>Owner phone: ________________ &nbsp; Vet: ________________</p>
+              <p className="no-print"><button type="button" className="btn" onClick={() => window.print()}>Print</button></p>
+            </section>
+          )}
           {session
             ? owned.data && <p><Link className="btn" to={`/animals/${owned.data}/care`}>Edit care log</Link></p>
             : <Unlock token={token!} />}
