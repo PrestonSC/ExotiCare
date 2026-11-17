@@ -8,6 +8,8 @@ export const troubleshooting: Guide = {
   body: `
 ## Find your problem
 
+For step-by-step help, see [When something goes wrong](guide:what-to-do). Heading away or losing power? See [Holidays, power cuts and heat waves](guide:travel-emergencies).
+
 | What is happening | Short answer | Read more |
 |---|---|---|
 | **Refusing food** | Common. Check heat and humidity, size, shedding, season. Worry about weight loss, not the refusal | [Feeding](guide:feeding) |

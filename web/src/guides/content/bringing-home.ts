@@ -8,6 +8,8 @@ export const bringingHome: Guide = {
   body: `
 ## Getting ready
 
+Still choosing? See [Choosing and buying a ball python](guide:choosing).
+
 Buy everything on the [Shopping list](guide:shopping-list) first, and research **ball pythons specifically**: "snakes" covers many species with very different needs.
 
 Have the enclosure **fully set up and running for at least 48 hours** before the snake comes home, with temperatures and humidity in range. You do not want to be adjusting a thermostat while a snake sits in the wrong conditions. See [Enclosure setup](guide:enclosure) and [Temperature and humidity](guide:temps-humidity).
